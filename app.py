@@ -124,21 +124,20 @@ if st.button(L["btn_gen"], use_container_width=True):
             client = OpenAI(api_key=api_key)
             with st.spinner(L["loading"]):
                 
-                # Budowanie promptu z rygorystyczną instrukcją
                 if analysis_mode == L["mode_res"]:
-                    prompt = f"Sporządź raport na temat surowca {target_item} w kraju {selected_country}. Skup się wyłącznie na aspekcie gospodarczym i strategicznym tego surowca."
+                    prompt = f"Sporządź raport na temat surowca {target_item} w kraju {selected_country}. Skup się wyłącznie na aspekcie gospodarczym i strategicznym tego surowca. NIE UŻYWAJ HASHTAGÓW (#)."
                 else:
                     prompt = f"Sporządź raport na temat: {target_item} w kraju {selected_country}. \
-                             UWAGA: Skup się WYŁĄCZNIE na tym konkretnym obszarze. \
+                             Skup się WYŁĄCZNIE na tym konkretnym obszarze. \
                              Jeśli wybrano 'Główne Osoby', opisz tylko kluczowych liderów. \
                              Jeśli 'System Władzy', opisz tylko strukturę ustrojową. \
                              Jeśli 'Partie Polityczne', opisz tylko programy i znaczenie partii. \
-                             Nie mieszaj tych kategorii."
+                             NIE UŻYWAJ HASHTAGÓW (#) ANI ŻADNYCH ZNACZNIKÓW SOCIAL MEDIA."
 
                 response = client.chat.completions.create(
                     model=model_version,
                     messages=[
-                        {"role": "system", "content": f"Jesteś precyzyjnym analitykiem geopolitycznym. Odpowiadaj w języku: {L['code']}."},
+                        {"role": "system", "content": f"Jesteś profesjonalnym analitykiem geopolitycznym przygotowującym raporty dla rządu i biznesu. Zachowaj formalny styl. Pod żadnym pozorem nie używaj hashtagów. Odpowiadaj w języku: {L['code']}."},
                         {"role": "user", "content": prompt}
                     ]
                 )
