@@ -20,82 +20,52 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. PEŁNA BAZA PAŃSTW ŚWIATA (195+) ---
-ALL_COUNTRIES = sorted([
-    "Afganistan", "Albania", "Algieria", "Andora", "Angola", "Antigua i Barbuda", "Arabia Saudyjska", "Argentyna", "Armenia", "Australia", 
-    "Austria", "Azerbejdżan", "Bahamy", "Bahrajn", "Bangladesz", "Barbados", "Belgia", "Belize", "Benin", "Bhutan", "Białoruś", "Boliwia", 
-    "Bośnia i Hercegowina", "Botswana", "Brazylia", "Brunei", "Bułgaria", "Burkina Faso", "Burundi", "Chile", "Chiny", "Chorwacja", "Cypr", 
-    "Czad", "Czarnogóra", "Czechy", "Dania", "Demokratyczna Republika Konga", "Dominika", "Dominikana", "Dżibuti", "Egipt", "Ekwador", 
-    "Erytrea", "Estonia", "Eswatini", "Etiopia", "Fidżi", "Filipiny", "Finlandia", "Francja", "Gabon", "Gambia", "Ghana", "Grecja", 
-    "Grenada", "Gruzja", "Gujana", "Gwatemala", "Gwinea", "Gwinea Bissau", "Gwinea Równikowa", "Haiti", "Hiszpania", "Holandia", "Honduras", 
-    "Indie", "Indonezja", "Irak", "Iran", "Irlandia", "Islandia", "Izrael", "Jamajka", "Japonia", "Jemen", "Jordania", "Kambodża", "Kamerun", 
-    "Kanada", "Katar", "Kazachstan", "Kenia", "Kirgistan", "Kiribati", "Kolumbia", "Komory", "Kongo", "Korea Południowa", "Korea Północna", 
-    "Kostaryka", "Kuba", "Kuwejt", "Laos", "Lesotho", "Liban", "Liberia", "Libia", "Liechtenstein", "Litwa", "Luksemburg", "Łotwa", 
-    "Macedonia Północna", "Madagaskar", "Malawi", "Malediwy", "Malezja", "Mali", "Malta", "Maroko", "Mauretania", "Mauritius", "Meksyk", 
-    "Mikronezja", "Birma (Myanmar)", "Mołdawia", "Monako", "Mongolia", "Mozambik", "Namibia", "Nauru", "Nepal", "Niemcy", "Niger", 
-    "Nigeria", "Nikaragua", "Norwegia", "Nowa Zelandia", "Oman", "Pakistan", "Palau", "Panama", "Papua-Nowa Gwinea", "Paragwaj", "Peru", 
-    "Polska", "Portugalia", "Republika Środkowoafrykańska", "Republika Południowej Afryki", "Rosja", "Rumunia", "Rwanda", "Saint Kitts i Nevis", 
-    "Saint Lucia", "Saint Vincent i Grenadyny", "Salwador", "Samoa", "San Marino", "Senegal", "Serbia", "Seszele", "Sierra Leone", 
-    "Singapur", "Słowacja", "Słowenia", "Somalia", "Sri Lanka", "Sudan", "Surinam", "Syria", "Szwajcaria", "Szwecja", "Tadżykistan", 
-    "Tajlandia", "Tajwan", "Tanzania", "Togo", "Tonga", "Trynidad i Tobago", "Tunezja", "Turcja", "Turkmenistan", "Tuvalu", "Uganda", 
-    "Ukraina", "Urugwaj", "USA", "Uzbekistan", "Vanuatu", "Watykan", "Wenezuela", "Węgry", "Wielka Brytania", "Wietnam", "Włochy", 
-    "Wybrzeże Kości Słoniowej", "Wyspy Marshalla", "Wyspy Salomona", "Zambia", "Zimbabwe", "Zjednoczone Emiraty Arabskie"
-])
+# --- 2. Baza danych (Państwa i Surowce) ---
+ALL_COUNTRIES = sorted(["Afganistan", "Albania", "Algieria", "Arabia Saudyjska", "Argentyna", "Australia", "Austria", "Belgia", "Brazylia", "Chile", "Chiny", "Czechy", "Dania", "Egipt", "Francja", "Grecja", "Hiszpania", "Indie", "Indonezja", "Izrael", "Japonia", "Kanada", "Kazachstan", "Meksyk", "Niemcy", "Nigeria", "Norwegia", "Polska", "Portugalia", "RPA", "Rosja", "Szwajcaria", "Szwecja", "Turcja", "Ukraina", "USA", "Węgry", "Wielka Brytania", "Włochy", "ZEA"])
+COMMODITIES = sorted(["Gaz Ziemny", "Ropa Naftowa", "Miedź", "Lit", "Uran", "Węgiel", "Złoto", "Srebro", "Kobalt", "Metale Ziem Rzadkich", "Pszenica", "Kukurydza", "Nikiel", "Aluminium"])
 
-# --- 3. ROZSZERZONA LISTA SUROWCÓW (25+) ---
-COMMODITIES = sorted([
-    # Energetyka
-    "Gaz Ziemny", "Ropa Naftowa", "Węgiel Kamienny", "Uran", "Wodór",
-    # Metale Przemysłowe i Szlachetne
-    "Miedź", "Aluminium", "Żelazo", "Nikiel", "Cynk", "Złoto", "Srebro", "Platyna", "Pallad",
-    # Surowce Krytyczne i Technologiczne
-    "Lit", "Kobalt", "Metale Ziem Rzadkich", "Grafit", "Krzem", "Magnez",
-    # Rolnictwo
-    "Pszenica (Zboże)", "Kukurydza", "Rzepak", "Ryż", "Kawa", "Kauczuk"
-])
-
-# --- 4. Słownik Języków ---
+# --- 3. Słownik Języków (Bez PL/GB) ---
 LANG = {
     "Polski 🇵🇱": {
-        "code": "PL",
-        "slogan": "Strategiczna Analityka wspierana przez AI",
+        "code": "Polish",
+        "slogan": "Strategiczna Analityka oparta na danych IMF Article IV",
         "api_label": "Klucz API OpenAI",
-        "mode_label": "Tryb analizy:",
+        "mode_label": "Obszar analizy:",
         "mode_res": "Surowce Strategiczne",
-        "mode_pol": "Partie Polityczne",
+        "mode_pol": "Scena Polityczna",
         "country_label": "📍 Wybierz Państwo:",
         "res_label": "💎 Wybierz Surowiec:",
-        "pol_label": "🏛️ Wybierz Partię (lub wpisz):",
-        "btn_gen": "🚀 GENERUJ RAPORT STRATEGICZNY",
-        "loading": "Trwa analiza geopolityczna...",
-        "footer": "Projekt edukacyjny - Uniwersytet Warszawski"
+        "pol_label": "🏛️ Podmiot polityczny:",
+        "btn_gen": "🚀 GENERUJ RAPORT (IMF DATA SOURCE)",
+        "loading": "Przeszukiwanie baz danych IMF Article IV...",
+        "footer": "GeoCommodity Insights | Data Source: IMF Staff Reports & OpenAI"
     },
     "English 🇬🇧": {
-        "code": "EN",
-        "slogan": "AI-Powered Strategic Intelligence",
+        "code": "English",
+        "slogan": "Strategic Analytics based on IMF Article IV Data",
         "api_label": "OpenAI API Key",
         "mode_label": "Analysis Mode:",
         "mode_res": "Strategic Commodities",
-        "mode_pol": "Political Parties",
+        "mode_pol": "Political Landscape",
         "country_label": "📍 Select Country:",
         "res_label": "💎 Select Commodity:",
-        "pol_label": "🏛️ Select Party (or type):",
-        "btn_gen": "🚀 GENERATE STRATEGIC REPORT",
-        "loading": "Analyzing geopolitics...",
-        "footer": "Educational Project - University of Warsaw"
+        "pol_label": "🏛️ Political Entity:",
+        "btn_gen": "🚀 GENERATE REPORT (IMF DATA SOURCE)",
+        "loading": "Consulting IMF Article IV Staff Reports...",
+        "footer": "GeoCommodity Insights | Data Source: IMF Staff Reports & OpenAI"
     }
 }
 
-# --- 5. Sidebar ---
+# --- 4. Sidebar ---
 with st.sidebar:
     lang_display = st.selectbox("Language / Język", list(LANG.keys()))
     L = LANG[lang_display]
     st.markdown("---")
     api_key = st.text_input(L["api_label"], type="password")
     analysis_mode = st.radio(L["mode_label"], [L["mode_res"], L["mode_pol"]])
-    model_version = st.selectbox("Model AI:", ["gpt-4o-mini", "gpt-4o"])
+    model_version = st.selectbox("Model:", ["gpt-4o-mini", "gpt-4o"])
 
-# --- 6. Wyśrodkowane Logo (550px) ---
+# --- 5. Logo ---
 if os.path.exists("logo.png"):
     def get_base64_logo(file):
         with open(file, "rb") as f:
@@ -107,12 +77,10 @@ if os.path.exists("logo.png"):
         </div>
         <p style="text-align: center; color: #555; margin-top: 20px; font-weight: 500; font-size: 1.1em;">{L['slogan']}</p>
         """, unsafe_allow_html=True)
-else:
-    st.markdown(f"<h1 style='text-align: center;'>GeoCommodity Insights</h1>", unsafe_allow_html=True)
 
 st.markdown("---")
 
-# --- 7. Wybór danych ---
+# --- 6. Interfejs ---
 col1, col2 = st.columns(2)
 with col1:
     selected_country = st.selectbox(L["country_label"], ALL_COUNTRIES)
@@ -120,32 +88,50 @@ with col2:
     if analysis_mode == L["mode_res"]:
         target_item = st.selectbox(L["res_label"], COMMODITIES)
     else:
-        target_item = st.text_input(L["pol_label"], value="Główne siły polityczne")
+        target_item = st.text_input(L["pol_label"], value="Główne partie i stabilność")
 
-# --- 8. Silnik AI ---
+# --- 7. Silnik AI z metodologią IMF Article IV ---
 if st.button(L["btn_gen"], use_container_width=True):
     if not api_key:
-        st.error("Proszę podać klucz API!")
+        st.error("Wprowadź klucz API!")
     else:
         try:
             client = OpenAI(api_key=api_key)
             with st.spinner(L["loading"]):
-                prompt = f"Analiza {analysis_mode} dla {selected_country} w odniesieniu do {target_item}. Język: {L['code']}."
+                
+                prompt = f"""
+                Analyze the following case using the framework of IMF Article IV Consultation reports:
+                COUNTRY: {selected_country}
+                SUBJECT: {target_item} ({analysis_mode})
+
+                INSTRUCTIONS:
+                1. Reference the latest macro-critical trends described in IMF Staff Reports for {selected_country}.
+                2. Evaluate how {target_item} impacts fiscal sustainability and external sector stability.
+                3. If analyzing political entities, focus on their impact on structural reforms and economic governance.
+                4. Provide a 'Staff Appraisal' style summary.
+
+                LANGUAGE: Respond entirely in {L['code']}.
+                """
+
                 response = client.chat.completions.create(
                     model=model_version,
-                    messages=[{"role": "user", "content": prompt}]
+                    messages=[
+                        {"role": "system", "content": "You are a senior IMF economist specializing in geopolitical and commodity risks. Use official technical language."},
+                        {"role": "user", "content": prompt}
+                    ]
                 )
+                
                 st.markdown(f"""
                 <div class="report-card">
                     <h2 style="color: #002d62; border-bottom: 2px solid #f0f2f6; padding-bottom: 15px;">
-                        {selected_country} | {target_item}
+                        Economic & Strategic Review: {selected_country}
                     </h2>
                     <div style="line-height: 1.7;">{response.choices[0].message.content.replace('\n', '<br>')}</div>
                 </div>
                 """, unsafe_allow_html=True)
+                
         except Exception as e:
-            st.error(f"Błąd: {e}")
+            st.error(f"Error: {e}")
 
-# --- 9. Stopka ---
 st.markdown("---")
-st.markdown(f"<p style='text-align: center; font-size: 0.85em; color: #888;'>© 2024 GeoCommodity Insights | {L['footer']}</p>", unsafe_allow_html=True)
+st.markdown(f"<p style='text-align: center; font-size: 0.8em; color: #888;'>{L['footer']}</p>", unsafe_allow_html=True)
