@@ -49,4 +49,116 @@ COMMODITIES = sorted([
 LANG = {
     "Polska 🇵🇱": {
         "code": "PL",
-        "slogan
+        "slogan": "Strategiczna Analityka wspierana przez AI",
+        "api_label": "Klucz API OpenAI",
+        "mode_label": "Tryb analizy:",
+        "mode_res": "Surowce Strategiczne",
+        "mode_pol": "Polityka",
+        "mode_rel": "Analiza Relacji",
+        "country_label": "📍 Wybierz Państwo:",
+        "country2_label": "🤝 Wybierz drugie Państwo:",
+        "res_label": "💎 Wybierz Surowiec:",
+        "pol_submode_label": "🔍 Obszar polityki:",
+        "pol_options": ["Partie Polityczne", "System Władzy", "Główne Osoby w Państwie"],
+        "btn_gen": "🚀 GENERUJ RAPORT STRATEGICZNY",
+        "loading": "Trwa analiza geopolityczna...",
+        "footer": "Projekt edukacyjny - Uniwersytet Warszawski"
+    },
+    "English 🇬🇧": {
+        "code": "EN",
+        "slogan": "AI-Powered Strategic Intelligence",
+        "api_label": "OpenAI API Key",
+        "mode_label": "Analysis Mode:",
+        "mode_res": "Strategic Commodities",
+        "mode_pol": "Politics",
+        "mode_rel": "Relationship Analysis",
+        "country_label": "📍 Select Country:",
+        "country2_label": "🤝 Select second Country:",
+        "res_label": "💎 Select Commodity:",
+        "pol_submode_label": "🔍 Politics area:",
+        "pol_options": ["Political Parties", "Government System", "Key Figures"],
+        "btn_gen": "🚀 GENERATE STRATEGIC REPORT",
+        "loading": "Analyzing geopolitics...",
+        "footer": "Educational Project - University of Warsaw"
+    }
+}
+
+# --- 4. Sidebar ---
+with st.sidebar:
+    lang_display = st.selectbox("Language / Język", list(LANG.keys()))
+    L = LANG[lang_display]
+    st.markdown("---")
+    api_key = st.text_input(L["api_label"], type="password")
+    analysis_mode = st.radio(L["mode_label"], [L["mode_res"], L["mode_pol"], L["mode_rel"]])
+    model_version = st.selectbox("Model AI:", ["gpt-4o-mini", "gpt-4o"])
+
+# --- 5. Logo (550px) ---
+if os.path.exists("logo.png"):
+    def get_base64_logo(file):
+        with open(file, "rb") as f:
+            return base64.b64encode(f.read()).decode()
+    encoded_logo = get_base64_logo("logo.png")
+    st.markdown(f"""
+        <div style="display: flex; justify-content: center; padding-top: 25px;">
+            <img src="data:image/png;base64,{encoded_logo}" width="550">
+        </div>
+        <p style="text-align: center; color: #555; margin-top: 20px; font-weight: 500; font-size: 1.1em;">{L['slogan']}</p>
+        """, unsafe_allow_html=True)
+else:
+    st.markdown(f"<h1 style='text-align: center;'>{L['slogan']}</h1>", unsafe_allow_html=True)
+
+st.markdown("---")
+
+# --- 6. Wybór danych ---
+col1, col2 = st.columns(2)
+with col1:
+    selected_country = st.selectbox(L["country_label"], ALL_COUNTRIES)
+with col2:
+    if analysis_mode == L["mode_res"]:
+        target_item = st.selectbox(L["res_label"], COMMODITIES)
+    elif analysis_mode == L["mode_pol"]:
+        target_item = st.selectbox(L["pol_submode_label"], L["pol_options"])
+    else:
+        # Tryb Analizy Relacji
+        target_item = st.selectbox(L["country2_label"], ALL_COUNTRIES, index=1)
+
+# --- 7. Silnik AI ---
+if st.button(L["btn_gen"], use_container_width=True):
+    if not api_key:
+        st.error("Proszę podać klucz API!")
+    else:
+        try:
+            client = OpenAI(api_key=api_key)
+            with st.spinner(L["loading"]):
+                
+                if analysis_mode == L["mode_res"]:
+                    prompt = f"Sporządź raport na temat surowca {target_item} w kraju {selected_country}. Skup się wyłącznie na aspekcie gospodarczym i strategicznym tego surowca. NIE UŻYWAJ HASHTAGÓW (#)."
+                elif analysis_mode == L["mode_pol"]:
+                    prompt = f"Sporządź raport na temat: {target_item} w kraju {selected_country}. Skup się WYŁĄCZNIE na tym konkretnym obszarze polityki. NIE UŻYWAJ HASHTAGÓW (#)."
+                else:
+                    prompt = f"Sporządź raport na temat relacji bilateralnych między {selected_country} a {target_item}. Opisz współpracę dyplomatyczną, gospodarczą oraz ewentualne punkty sporne. NIE UŻYWAJ HASHTAGÓW (#)."
+
+                response = client.chat.completions.create(
+                    model=model_version,
+                    messages=[
+                        {"role": "system", "content": f"Jesteś profesjonalnym analitykiem geopolitycznym. Odpowiadaj w języku: {L['code']}. Pod żadnym pozorem nie używaj hashtagów."},
+                        {"role": "user", "content": prompt}
+                    ]
+                )
+                
+                header_title = f"{selected_country} + {target_item}" if analysis_mode == L["mode_rel"] else f"{selected_country} | {target_item}"
+                
+                st.markdown(f"""
+                <div class="report-card">
+                    <h2 style="color: #002d62; border-bottom: 2px solid #f0f2f6; padding-bottom: 15px; margin-bottom: 20px;">
+                        {header_title}
+                    </h2>
+                    <div style="line-height: 1.7;">{response.choices[0].message.content.replace('\n', '<br>')}</div>
+                </div>
+                """, unsafe_allow_html=True)
+        except Exception as e:
+            st.error(f"Błąd: {e}")
+
+# --- 8. Stopka ---
+st.markdown("---")
+st.markdown(f"<p style='text-align: center; font-size: 0.85em; color: #888;'>© 2024 GeoCommodity Insights | {L['footer']}</p>", unsafe_allow_html=True)
