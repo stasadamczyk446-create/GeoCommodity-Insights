@@ -102,35 +102,41 @@ with col2:
     else:
         target_item = st.selectbox(L["country2_label"], ALL_COUNTRIES, index=1)
 
-# --- 7. Poprawiona Funkcja PDF z obsługą znaków i logo ---
+# --- 7. Poprawiona Funkcja PDF (Odporna na błędy formatu logo) ---
 def create_pdf(title, content, footer_text):
     pdf = FPDF()
     pdf.add_page()
     
-    # Dodanie Logo do PDF (jeśli istnieje)
+    # Próba dodania Logo do PDF
     if os.path.exists("logo.png"):
-        pdf.image("logo.png", x=70, y=10, w=70)
-        pdf.ln(40) # Odstęp pod logo
+        try:
+            # Używamy bezpośredniej ścieżki, ale w bloku try
+            pdf.image("logo.png", x=70, y=10, w=70)
+            pdf.ln(40) 
+        except Exception:
+            # Jeśli format PNG jest zły, pomijamy logo i dajemy tylko odstęp
+            pdf.ln(10)
+            st.warning("Uwaga: Format pliku logo.png jest niekompatybilny z PDF. Raport wygenerowano bez logo.")
     
-    # Tytuł (używamy latin-1 z replace dla bezpieczeństwa, ale treść spróbujemy zakodować lepiej)
+    # Tytuł
     pdf.set_font("Arial", 'B', 16)
-    pdf.cell(0, 10, title.encode('latin-1', 'ignore').decode('latin-1'), ln=True, align='C')
+    # Usuwamy polskie znaki tylko z tytułu dla stabilności
+    clean_title = title.replace('ł','l').replace('ó','o').replace('ą','a').replace('ć','c').replace('ę','e').replace('ń','n').replace('ś','s').replace('ź','z').replace('ż','z')
+    pdf.cell(0, 10, clean_title, ln=True, align='C')
     pdf.ln(10)
     
     # Treść raportu
     pdf.set_font("Arial", size=11)
     
-    # Próba obsługi polskich znaków poprzez zamianę na najbardziej zbliżone w latin-1 
-    # lub usunięcie błędów kodowania, aby PDF się wygenerował.
-    # Aby mieć 100% polskie znaki w FPDF na serwerze bez fontów TTF jest trudno, 
-    # ale użycie 'ignore' pozwoli przejść procesowi.
+    # Kodowanie latin-1 z ignorowaniem błędów (najstabilniejsze dla FPDF)
     safe_content = content.encode('latin-1', 'replace').decode('latin-1')
     pdf.multi_cell(0, 8, safe_content)
     
     # Stopka
     pdf.set_y(-15)
     pdf.set_font("Arial", 'I', 8)
-    pdf.cell(0, 10, footer_text.encode('latin-1', 'ignore').decode('latin-1'), 0, 0, 'C')
+    clean_footer = footer_text.replace('ł','l').replace('ó','o').replace('ą','a').replace('ć','c').replace('ę','e').replace('ń','n').replace('ś','s').replace('ź','z').replace('ż','z')
+    pdf.cell(0, 10, clean_footer, 0, 0, 'C')
     
     return pdf.output(dest='S').encode('latin-1')
 
