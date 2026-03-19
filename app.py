@@ -22,7 +22,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. Pełna Baza Państw i Surowców ---
+# --- 2. Baza Danych ---
 ALL_COUNTRIES = sorted([
     "Afganistan", "Albania", "Algieria", "Andora", "Angola", "Arabia Saudyjska", "Argentyna", "Armenia", "Australia", "Austria",
     "Azerbejdżan", "Bahamy", "Bahrajn", "Bangladesz", "Barbados", "Belgia", "Belize", "Benin", "Bhutan", "Białoruś", "Boliwia",
@@ -42,7 +42,6 @@ ALL_COUNTRIES = sorted([
 
 COMMODITIES = sorted(["Gaz Ziemny", "Ropa Naftowa", "Węgiel Kamienny", "Uran", "Wodór", "Miedź", "Aluminium", "Żelazo", "Nikiel", "Cynk", "Złoto", "Srebro", "Platyna", "Lit", "Kobalt", "Metale Ziem Rzadkich", "Grafit", "Krzem", "Magnez", "Pszenica (Zboże)", "Kukurydza", "Rzepak", "Ryż", "Kawa", "Kauczuk"])
 
-# Rozszerzone dane do mapy (przykładowe dla większości dużych graczy)
 gold_data = {
     'Country': ['USA', 'Germany', 'Italy', 'France', 'Russia', 'China', 'Switzerland', 'Japan', 'India', 'Turkey', 'Netherlands', 'Poland', 'Saudi Arabia', 'Portugal', 'Kazakhstan', 'Uzbekistan', 'Brazil', 'UK', 'Spain', 'Austria', 'Australia', 'Canada', 'South Africa', 'Mexico', 'Greece', 'Belgium', 'Algeria', 'Thailand', 'Singapore', 'Sweden'],
     'ISO_Code': ['USA', 'DEU', 'ITA', 'FRA', 'RUS', 'CHN', 'CHE', 'JPN', 'IND', 'TUR', 'NLD', 'POL', 'SAU', 'PRT', 'KAZ', 'UZB', 'BRA', 'GBR', 'ESP', 'AUT', 'AUS', 'CAN', 'ZAF', 'MEX', 'GRC', 'BEL', 'DZA', 'THA', 'SGP', 'SWE'],
@@ -62,7 +61,8 @@ LANG = {
         "mode_res": "Surowce Strategiczne",
         "mode_pol": "Polityka",
         "mode_rel": "Analiza Relacji",
-        "mode_map": "Mapa Rezerw Złota",
+        "map_option_off": "Wyłączony",
+        "map_option_gold": "Mapa Rezerw Złota",
         "country_label": "📍 Wybierz Państwo:",
         "country2_label": "🤝 Wybierz drugie Państwo:",
         "res_label": "💎 Wybierz Surowiec:",
@@ -82,7 +82,8 @@ LANG = {
         "mode_res": "Strategic Commodities",
         "mode_pol": "Politics",
         "mode_rel": "Relationship Analysis",
-        "mode_map": "Gold Reserves Map",
+        "map_option_off": "Disabled",
+        "map_option_gold": "Gold Reserves Map",
         "country_label": "📍 Select Country:",
         "country2_label": "🤝 Select second Country:",
         "res_label": "💎 Select Commodity:",
@@ -98,16 +99,18 @@ LANG = {
 with st.sidebar:
     lang_display = st.selectbox("Language / Język", list(LANG.keys()))
     L = LANG[lang_display]
-    
     st.markdown("---")
     api_key = st.text_input(L["api_label"], type="password")
     
+    # Grupa 1: Analiza AI
     st.markdown(f"### {L['nav_analysis']}")
-    analysis_mode = st.radio(L["mode_label"], [L["mode_res"], L["mode_pol"], L["mode_rel"]], key="analysis")
+    analysis_mode = st.radio(L["mode_label"], [L["mode_res"], L["mode_pol"], L["mode_rel"]])
     
     st.markdown("---")
+    
+    # Grupa 2: Mapy (Zastąpienie checkboxa przez selectbox)
     st.markdown(f"### {L['nav_maps']}")
-    show_map_mode = st.checkbox(L["mode_map"])
+    map_selection = st.selectbox(L["nav_maps"], [L["map_option_off"], L["map_option_gold"]])
     
     st.markdown("---")
     model_version = st.selectbox("Model AI:", ["gpt-4o-mini", "gpt-4o"])
@@ -125,15 +128,15 @@ st.markdown("---")
 
 # --- 6. Interfejs Główny ---
 
-if show_map_mode:
-    st.subheader(f"🗺️ {L['mode_map']}")
+if map_selection == L["map_option_gold"]:
+    st.subheader(f"🗺️ {L['map_option_gold']}")
     fig = px.choropleth(df_gold, locations="ISO_Code", color="Tons", hover_name="Country",
                         color_continuous_scale=px.colors.diverging.RdYlGn,
                         range_color=[0, 2500],
                         labels={'Tons':'Gold (Tons)'})
     fig.update_layout(geo=dict(showframe=False, projection_type='equirectangular'), margin={"r":0,"t":0,"l":0,"b":0})
     st.plotly_chart(fig, use_container_width=True)
-    st.markdown("*Source: World Gold Council Data*")
+    st.markdown("*Source: World Gold Council Data (2024)*")
 else:
     col1, col2 = st.columns(2)
     with col1:
@@ -147,7 +150,7 @@ else:
             target_item = st.selectbox(L["country2_label"], ALL_COUNTRIES, index=1)
 
     if st.button(L["btn_gen"], use_container_width=True):
-        if not api_key: st.error("Klucz API!")
+        if not api_key: st.error("Podaj klucz API!")
         else:
             try:
                 client = OpenAI(api_key=api_key)
@@ -155,9 +158,9 @@ else:
                     if analysis_mode == L["mode_res"]:
                         p = f"Analiza {target_item} w {selected_country}. Strategia i gospodarka."
                     elif analysis_mode == L["mode_pol"]:
-                        p = f"Analiza {target_item} w {selected_country}. Tylko ten obszar."
+                        p = f"Analiza {target_item} w {selected_country}. Skup się tylko na tym konkretnym obszarze."
                     else:
-                        p = f"Relacje {selected_country} - {target_item}. Dyplomacja i spory."
+                        p = f"Relacje {selected_country} - {target_item}. Dyplomacja i gospodarka."
                     
                     resp = client.chat.completions.create(model=model_version,
                         messages=[{"role": "system", "content": f"Ekspert geopolityki. Język: {L['code']}. Bez hashtagów."},
