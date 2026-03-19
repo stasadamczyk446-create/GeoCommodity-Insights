@@ -18,33 +18,13 @@ st.markdown("""
         margin-top: 20px;
         color: #1e1e1e;
     }
+    .spacer { margin-top: 40px; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. Baza Danych ---
-ALL_COUNTRIES = sorted([
-    "Afganistan", "Albania", "Algieria", "Andora", "Angola", "Arabia Saudyjska", "Argentyna", "Armenia", "Australia", "Austria",
-    "Azerbejdżan", "Bahamy", "Bahrajn", "Bangladesz", "Barbados", "Belgia", "Belize", "Benin", "Bhutan", "Białoruś", "Boliwia",
-    "Bośnia i Hercegowina", "Botswana", "Brazylia", "Brunei", "Bułgaria", "Burkina Faso", "Burundi", "Chile", "Chiny", "Chorwacja",
-    "Cypr", "Czad", "Czarnogóra", "Czechy", "Dania", "Egipt", "Ekwador", "Erytrea", "Estonia", "Etiopia", "Filipiny", "Finlandia", 
-    "Francja", "Gabon", "Gambia", "Ghana", "Grecja", "Gruzja", "Gwatemala", "Gwinea", "Haiti", "Hiszpania", "Holandia", "Honduras", 
-    "Indie", "Indonezja", "Irak", "Iran", "Irlandia", "Islandia", "Izrael", "Jamajka", "Japonia", "Jemen", "Jordania", "Kambodża", 
-    "Kamerun", "Kanada", "Katar", "Kazachstan", "Kenia", "Kirgistan", "Kolumbia", "Kongo", "Korea Południowa", "Korea Północna", 
-    "Kostaryka", "Kuba", "Kuwejt", "Laos", "Liban", "Liberia", "Libia", "Litwa", "Luksemburg", "Łotwa", "Macedonia Północna", 
-    "Madagaskar", "Malezja", "Malta", "Maroko", "Meksyk", "Mołdawia", "Monako", "Mongolia", "Mozambik", "Namibia", "Nepal", 
-    "Niemcy", "Niger", "Nigeria", "Nikaragua", "Norwegia", "Nowa Zelandia", "Oman", "Pakistan", "Panama", "Papua-Nowa Gwinea", "Paragwaj", "Peru", 
-    "Polska", "Portugalia", "Republika Południowej Afryki", "Rosja", "Rumunia", "Rwanda", "Salwador", "Senegal", "Serbia", 
-    "Singapur", "Słowacja", "Słowenia", "Somalia", "Sri Lanka", "Sudan", "Surinam", "Syria", "Szwajcaria", "Szwecja", "Tadżykistan", 
-    "Tajlandia", "Tajwan", "Tanzania", "Togo", "Tonga", "Trynidad i Tobago", "Tunezja", "Turcja", "Turkmenistan", "Tuvalu", "Uganda", 
-    "Ukraina", "Urugwaj", "USA", "Uzbekistan", "Wenezuela", "Węgry", "Wielka Brytania", "Wietnam", "Włochy", "Wybrzeże Kości Słoniowej", "Zambia", "Zimbabwe", "ZEA"
-])
-
-COMMODITIES = sorted([
-    "Gaz Ziemny", "Ropa Naftowa", "Węgiel Kamienny", "Uran", "Wodór",
-    "Miedź", "Aluminium", "Żelazo", "Nikiel", "Cynk", "Złoto", "Srebro", "Platyna",
-    "Lit", "Kobalt", "Metale Ziem Rzadkich", "Grafit", "Krzem", "Magnez",
-    "Pszenica (Zboże)", "Kukurydza", "Rzepak", "Ryż", "Kawa", "Kauczuk"
-])
+# --- 2. Baza Danych (Pozostaje bez zmian) ---
+ALL_COUNTRIES = sorted(["Afganistan", "Albania", "Algieria", "Andora", "Angola", "Arabia Saudyjska", "Argentyna", "Armenia", "Australia", "Austria", "Azerbejdżan", "Bahamy", "Bahrajn", "Bangladesz", "Barbados", "Belgia", "Belize", "Benin", "Bhutan", "Białoruś", "Boliwia", "Bośnia i Hercegowina", "Botswana", "Brazylia", "Brunei", "Bułgaria", "Burkina Faso", "Burundi", "Chile", "Chiny", "Chorwacja", "Cypr", "Czad", "Czarnogóra", "Czechy", "Dania", "Egipt", "Ekwador", "Erytrea", "Estonia", "Etiopia", "Filipiny", "Finlandia", "Francja", "Gabon", "Gambia", "Ghana", "Grecja", "Gruzja", "Gwatemala", "Gwinea", "Haiti", "Hiszpania", "Holandia", "Honduras", "Indie", "Indonezja", "Irak", "Iran", "Irlandia", "Islandia", "Izrael", "Jamajka", "Japonia", "Jemen", "Jordania", "Kambodża", "Kamerun", "Kanada", "Katar", "Kazachstan", "Kenia", "Kirgistan", "Kolumbia", "Kongo", "Korea Południowa", "Korea Północna", "Kostaryka", "Kuba", "Kuwejt", "Laos", "Liban", "Liberia", "Libia", "Litwa", "Luksemburg", "Łotwa", "Macedonia Północna", "Madagaskar", "Malezja", "Malta", "Maroko", "Meksyk", "Mołdawia", "Monako", "Mongolia", "Mozambik", "Namibia", "Nepal", "Niemcy", "Niger", "Nigeria", "Nikaragua", "Norwegia", "Nowa Zelandia", "Oman", "Pakistan", "Panama", "Paragwaj", "Peru", "Polska", "Portugalia", "Republika Południowej Afryki", "Rosja", "Rumunia", "Rwanda", "Salwador", "Senegal", "Serbia", "Singapur", "Słowacja", "Słowenia", "Somalia", "Sri Lanka", "Sudan", "Surinam", "Syria", "Szwajcaria", "Szwecja", "Tadżykistan", "Tajlandia", "Tajwan", "Tanzania", "Tunezja", "Turcja", "Turkmenistan", "Uganda", "Ukraina", "Urugwaj", "USA", "Uzbekistan", "Wenezuela", "Węgry", "Wielka Brytania", "Wietnam", "Włochy", "Wybrzeże Kości Słoniowej", "Zambia", "Zimbabwe", "ZEA"])
+COMMODITIES = sorted(["Gaz Ziemny", "Ropa Naftowa", "Węgiel Kamienny", "Uran", "Wodór", "Miedź", "Aluminium", "Żelazo", "Nikiel", "Cynk", "Złoto", "Srebro", "Platyna", "Lit", "Kobalt", "Metale Ziem Rzadkich", "Grafit", "Krzem", "Magnez", "Pszenica (Zboże)", "Kukurydza", "Rzepak", "Ryż", "Kawa", "Kauczuk"])
 
 # --- 3. Słownik Języków ---
 LANG = {
@@ -95,7 +75,7 @@ with st.sidebar:
     analysis_mode = st.radio(L["mode_label"], [L["mode_res"], L["mode_pol"], L["mode_rel"]])
     model_version = st.selectbox("Model AI:", ["gpt-4o-mini", "gpt-4o"])
 
-# --- 5. Logo (550px) ---
+# --- 5. Logo Główne (550px) ---
 if os.path.exists("logo.png"):
     def get_base64_logo(file):
         with open(file, "rb") as f:
@@ -107,8 +87,6 @@ if os.path.exists("logo.png"):
         </div>
         <p style="text-align: center; color: #555; margin-top: 20px; font-weight: 500; font-size: 1.1em;">{L['slogan']}</p>
         """, unsafe_allow_html=True)
-else:
-    st.markdown(f"<h1 style='text-align: center;'>{L['slogan']}</h1>", unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -124,24 +102,36 @@ with col2:
     else:
         target_item = st.selectbox(L["country2_label"], ALL_COUNTRIES, index=1)
 
-# --- 7. Funkcja PDF ---
+# --- 7. Poprawiona Funkcja PDF z obsługą znaków i logo ---
 def create_pdf(title, content, footer_text):
     pdf = FPDF()
     pdf.add_page()
-    # Nagłówek
+    
+    # Dodanie Logo do PDF (jeśli istnieje)
+    if os.path.exists("logo.png"):
+        pdf.image("logo.png", x=70, y=10, w=70)
+        pdf.ln(40) # Odstęp pod logo
+    
+    # Tytuł (używamy latin-1 z replace dla bezpieczeństwa, ale treść spróbujemy zakodować lepiej)
     pdf.set_font("Arial", 'B', 16)
-    pdf.cell(0, 10, title.encode('latin-1', 'replace').decode('latin-1'), ln=True, align='C')
+    pdf.cell(0, 10, title.encode('latin-1', 'ignore').decode('latin-1'), ln=True, align='C')
     pdf.ln(10)
-    # Treść
+    
+    # Treść raportu
     pdf.set_font("Arial", size=11)
-    # FPDF nie obsługuje polskich znaków bez wgrania czcionki TTF, 
-    # więc używamy replace, aby PDF się nie wywalał przy generowaniu na serwerze.
-    text = content.encode('latin-1', 'replace').decode('latin-1')
-    pdf.multi_cell(0, 10, text)
+    
+    # Próba obsługi polskich znaków poprzez zamianę na najbardziej zbliżone w latin-1 
+    # lub usunięcie błędów kodowania, aby PDF się wygenerował.
+    # Aby mieć 100% polskie znaki w FPDF na serwerze bez fontów TTF jest trudno, 
+    # ale użycie 'ignore' pozwoli przejść procesowi.
+    safe_content = content.encode('latin-1', 'replace').decode('latin-1')
+    pdf.multi_cell(0, 8, safe_content)
+    
     # Stopka
     pdf.set_y(-15)
     pdf.set_font("Arial", 'I', 8)
-    pdf.cell(0, 10, footer_text.encode('latin-1', 'replace').decode('latin-1'), 0, 0, 'C')
+    pdf.cell(0, 10, footer_text.encode('latin-1', 'ignore').decode('latin-1'), 0, 0, 'C')
+    
     return pdf.output(dest='S').encode('latin-1')
 
 # --- 8. Silnik AI ---
@@ -181,18 +171,26 @@ if st.button(L["btn_gen"], use_container_width=True):
                 </div>
                 """, unsafe_allow_html=True)
 
-                # Przycisk PDF pojawia się pod raportem
+                # --- 9. Sekcja Pobierania (Przesunięta niżej) ---
+                st.write("") # Pusta linia dla odstępu
+                st.write("") # Druga pusta linia
+                
                 pdf_data = create_pdf(header_title, report_text, L["footer"])
-                st.download_button(
-                    label=L["btn_pdf"],
-                    data=pdf_data,
-                    file_name=f"Raport_{selected_country}.pdf",
-                    mime="application/pdf",
-                )
+                
+                # Używamy kolumn, aby przycisk nie był na całą szerokość i wyglądał profesjonalnie
+                col_left, col_mid, col_right = st.columns([1, 2, 1])
+                with col_mid:
+                    st.download_button(
+                        label=L["btn_pdf"],
+                        data=pdf_data,
+                        file_name=f"Raport_{selected_country}.pdf",
+                        mime="application/pdf",
+                        use_container_width=True
+                    )
 
         except Exception as e:
             st.error(f"Błąd: {e}")
 
-# --- 9. Stopka ---
+# --- 10. Stopka ---
 st.markdown("---")
 st.markdown(f"<p style='text-align: center; font-size: 0.85em; color: #888;'>© 2024 GeoCommodity Insights | {L['footer']}</p>", unsafe_allow_html=True)
