@@ -1,7 +1,8 @@
-import streamlit as st
+import st
 from openai import OpenAI
 import os
 import base64
+from fpdf import FPDF
 
 # --- 1. Konfiguracja Strony ---
 st.set_page_config(page_title="GeoCommodity Insights", layout="wide", page_icon="🌍")
@@ -31,7 +32,7 @@ ALL_COUNTRIES = sorted([
     "Kamerun", "Kanada", "Katar", "Kazachstan", "Kenia", "Kirgistan", "Kolumbia", "Kongo", "Korea Południowa", "Korea Północna", 
     "Kostaryka", "Kuba", "Kuwejt", "Laos", "Liban", "Liberia", "Libia", "Litwa", "Luksemburg", "Łotwa", "Macedonia Północna", 
     "Madagaskar", "Malezja", "Malta", "Maroko", "Meksyk", "Mołdawia", "Monako", "Mongolia", "Mozambik", "Namibia", "Nepal", 
-    "Niemcy", "Niger", "Nigeria", "Nikaragua", "Norwegia", "Nowa Zelandia", "Oman", "Pakistan", "Panama", "Paragwaj", "Peru", 
+    "Niemcy", "Niger", "Nigeria", "Nikaragua", "Norwegia", "Nowa Zelandia", "Oman", "Pakistan", "Panama", "Papua-Nowa Gwinea", "Paragwaj", "Peru", 
     "Polska", "Portugalia", "Republika Południowej Afryki", "Rosja", "Rumunia", "Rwanda", "Salwador", "Senegal", "Serbia", 
     "Singapur", "Słowacja", "Słowenia", "Somalia", "Sri Lanka", "Sudan", "Surinam", "Syria", "Szwajcaria", "Szwecja", "Tadżykistan", 
     "Tajlandia", "Tajwan", "Tanzania", "Togo", "Tonga", "Trynidad i Tobago", "Tunezja", "Turcja", "Turkmenistan", "Tuvalu", "Uganda", 
@@ -61,6 +62,7 @@ LANG = {
         "pol_submode_label": "🔍 Obszar polityki:",
         "pol_options": ["Partie Polityczne", "System Władzy", "Główne Osoby w Państwie"],
         "btn_gen": "🚀 GENERUJ RAPORT STRATEGICZNY",
+        "btn_pdf": "📥 Pobierz raport PDF",
         "loading": "Trwa analiza geopolityczna...",
         "footer": "Projekt edukacyjny - Uniwersytet Warszawski"
     },
@@ -78,6 +80,7 @@ LANG = {
         "pol_submode_label": "🔍 Politics area:",
         "pol_options": ["Political Parties", "Government System", "Key Figures"],
         "btn_gen": "🚀 GENERATE STRATEGIC REPORT",
+        "btn_pdf": "📥 Download PDF Report",
         "loading": "Analyzing geopolitics...",
         "footer": "Educational Project - University of Warsaw"
     }
@@ -119,10 +122,29 @@ with col2:
     elif analysis_mode == L["mode_pol"]:
         target_item = st.selectbox(L["pol_submode_label"], L["pol_options"])
     else:
-        # Tryb Analizy Relacji
         target_item = st.selectbox(L["country2_label"], ALL_COUNTRIES, index=1)
 
-# --- 7. Silnik AI ---
+# --- 7. Funkcja PDF ---
+def create_pdf(title, content, footer_text):
+    pdf = FPDF()
+    pdf.add_page()
+    # Nagłówek
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(0, 10, title.encode('latin-1', 'replace').decode('latin-1'), ln=True, align='C')
+    pdf.ln(10)
+    # Treść
+    pdf.set_font("Arial", size=11)
+    # FPDF nie obsługuje polskich znaków bez wgrania czcionki TTF, 
+    # więc używamy replace, aby PDF się nie wywalał przy generowaniu na serwerze.
+    text = content.encode('latin-1', 'replace').decode('latin-1')
+    pdf.multi_cell(0, 10, text)
+    # Stopka
+    pdf.set_y(-15)
+    pdf.set_font("Arial", 'I', 8)
+    pdf.cell(0, 10, footer_text.encode('latin-1', 'replace').decode('latin-1'), 0, 0, 'C')
+    return pdf.output(dest='S').encode('latin-1')
+
+# --- 8. Silnik AI ---
 if st.button(L["btn_gen"], use_container_width=True):
     if not api_key:
         st.error("Proszę podać klucz API!")
@@ -146,19 +168,31 @@ if st.button(L["btn_gen"], use_container_width=True):
                     ]
                 )
                 
+                report_text = response.choices[0].message.content
                 header_title = f"{selected_country} + {target_item}" if analysis_mode == L["mode_rel"] else f"{selected_country} | {target_item}"
                 
+                # Wyświetlenie na stronie
                 st.markdown(f"""
                 <div class="report-card">
                     <h2 style="color: #002d62; border-bottom: 2px solid #f0f2f6; padding-bottom: 15px; margin-bottom: 20px;">
                         {header_title}
                     </h2>
-                    <div style="line-height: 1.7;">{response.choices[0].message.content.replace('\n', '<br>')}</div>
+                    <div style="line-height: 1.7;">{report_text.replace('\n', '<br>')}</div>
                 </div>
                 """, unsafe_allow_html=True)
+
+                # Przycisk PDF pojawia się pod raportem
+                pdf_data = create_pdf(header_title, report_text, L["footer"])
+                st.download_button(
+                    label=L["btn_pdf"],
+                    data=pdf_data,
+                    file_name=f"Raport_{selected_country}.pdf",
+                    mime="application/pdf",
+                )
+
         except Exception as e:
             st.error(f"Błąd: {e}")
 
-# --- 8. Stopka ---
+# --- 9. Stopka ---
 st.markdown("---")
 st.markdown(f"<p style='text-align: center; font-size: 0.85em; color: #888;'>© 2024 GeoCommodity Insights | {L['footer']}</p>", unsafe_allow_html=True)
