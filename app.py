@@ -34,8 +34,8 @@ ALL_COUNTRIES = sorted([
     "Niemcy", "Niger", "Nigeria", "Nikaragua", "Norwegia", "Nowa Zelandia", "Oman", "Pakistan", "Panama", "Paragwaj", "Peru", 
     "Polska", "Portugalia", "Republika Południowej Afryki", "Rosja", "Rumunia", "Rwanda", "Salwador", "Senegal", "Serbia", 
     "Singapur", "Słowacja", "Słowenia", "Somalia", "Sri Lanka", "Sudan", "Surinam", "Syria", "Szwajcaria", "Szwecja", "Tadżykistan", 
-    "Tajlandia", "Tajwan", "Tanzania", "Tunezja", "Turcja", "Turkmenistan", "Uganda", "Ukraina", "Urugwaj", "USA", "Uzbekistan", 
-    "Wenezuela", "Węgry", "Wielka Brytania", "Wietnam", "Włochy", "Wybrzeże Kości Słoniowej", "Zambia", "Zimbabwe", "ZEA"
+    "Tajlandia", "Tajwan", "Tanzania", "Togo", "Tonga", "Trynidad i Tobago", "Tunezja", "Turcja", "Turkmenistan", "Tuvalu", "Uganda", 
+    "Ukraina", "Urugwaj", "USA", "Uzbekistan", "Wenezuela", "Węgry", "Wielka Brytania", "Wietnam", "Włochy", "Wybrzeże Kości Słoniowej", "Zambia", "Zimbabwe", "ZEA"
 ])
 
 COMMODITIES = sorted([
@@ -58,7 +58,6 @@ LANG = {
         "res_label": "💎 Wybierz Surowiec:",
         "pol_submode_label": "🔍 Obszar polityki:",
         "pol_options": ["Partie Polityczne", "System Władzy", "Główne Osoby w Państwie"],
-        "pol_input_label": "🏛️ Podaj szczegóły (opcjonalnie):",
         "btn_gen": "🚀 GENERUJ RAPORT STRATEGICZNY",
         "loading": "Trwa analiza geopolityczna...",
         "footer": "Projekt edukacyjny - Uniwersytet Warszawski"
@@ -74,7 +73,6 @@ LANG = {
         "res_label": "💎 Select Commodity:",
         "pol_submode_label": "🔍 Politics area:",
         "pol_options": ["Political Parties", "Government System", "Key Figures"],
-        "pol_input_label": "🏛️ Provide details (optional):",
         "btn_gen": "🚀 GENERATE STRATEGIC REPORT",
         "loading": "Analyzing geopolitics...",
         "footer": "Educational Project - University of Warsaw"
@@ -115,9 +113,7 @@ with col2:
     if analysis_mode == L["mode_res"]:
         target_item = st.selectbox(L["res_label"], COMMODITIES)
     else:
-        # Nowe opcje polityczne
-        pol_submode = st.selectbox(L["pol_submode_label"], L["pol_options"])
-        target_item = st.text_input(L["pol_input_label"], value=pol_submode)
+        target_item = st.selectbox(L["pol_submode_label"], L["pol_options"])
 
 # --- 7. Silnik AI ---
 if st.button(L["btn_gen"], use_container_width=True):
@@ -127,11 +123,26 @@ if st.button(L["btn_gen"], use_container_width=True):
         try:
             client = OpenAI(api_key=api_key)
             with st.spinner(L["loading"]):
-                prompt = f"Analiza {analysis_mode} dla {selected_country} w odniesieniu do {target_item}. Język: {L['code']}."
+                
+                # Budowanie promptu z rygorystyczną instrukcją
+                if analysis_mode == L["mode_res"]:
+                    prompt = f"Sporządź raport na temat surowca {target_item} w kraju {selected_country}. Skup się wyłącznie na aspekcie gospodarczym i strategicznym tego surowca."
+                else:
+                    prompt = f"Sporządź raport na temat: {target_item} w kraju {selected_country}. \
+                             UWAGA: Skup się WYŁĄCZNIE na tym konkretnym obszarze. \
+                             Jeśli wybrano 'Główne Osoby', opisz tylko kluczowych liderów. \
+                             Jeśli 'System Władzy', opisz tylko strukturę ustrojową. \
+                             Jeśli 'Partie Polityczne', opisz tylko programy i znaczenie partii. \
+                             Nie mieszaj tych kategorii."
+
                 response = client.chat.completions.create(
                     model=model_version,
-                    messages=[{"role": "user", "content": prompt}]
+                    messages=[
+                        {"role": "system", "content": f"Jesteś precyzyjnym analitykiem geopolitycznym. Odpowiadaj w języku: {L['code']}."},
+                        {"role": "user", "content": prompt}
+                    ]
                 )
+                
                 st.markdown(f"""
                 <div class="report-card">
                     <h2 style="color: #002d62; border-bottom: 2px solid #f0f2f6; padding-bottom: 15px; margin-bottom: 20px;">
