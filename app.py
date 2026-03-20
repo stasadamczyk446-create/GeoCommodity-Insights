@@ -117,9 +117,8 @@ LANG = {
 with st.sidebar:
     lang_display = st.selectbox("Language / Język", list(LANG.keys()))
     L = LANG[lang_display]
-    st.markdown("---")
-    api_key = st.text_input(L["api_label"], type="password")
     
+    st.markdown("---")
     st.markdown(f"### {L['nav_analysis']}")
     analysis_mode = st.radio(L["mode_label"], [L["mode_res"], L["mode_pol"], L["mode_rel"]])
     
@@ -129,6 +128,9 @@ with st.sidebar:
     
     st.markdown("---")
     model_version = st.selectbox("Model AI:", ["gpt-4o-mini", "gpt-4o"])
+    
+    # KLUCZ API NA SAMYM DOLE
+    api_key = st.text_input(L["api_label"], type="password")
 
 # --- 5. Logo (550px) ---
 if os.path.exists("logo.png"):
@@ -174,7 +176,6 @@ else:
         if not api_key: st.error("Podaj klucz API!")
         else:
             try:
-                # Podmiana statusu na górze (Slogan zostaje, status się zmienia)
                 status_placeholder.markdown(f"""
                     <div class="status-container">
                         <p class="status-text">{L['slogan']} | <span class="status-highlight" style="color: #d4a017;">{L["status_work"]}</span></p>
@@ -196,7 +197,6 @@ else:
                     
                     st.markdown(f'<div class="report-card"><h2>{selected_country} | {target_item}</h2>{resp.choices[0].message.content.replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
                 
-                # Powrót do statusu bazowego
                 status_placeholder.markdown(f"""
                     <div class="status-container">
                         <p class="status-text">{L['slogan']} | <span class="status-highlight">{L["status_wait"]}</span></p>
