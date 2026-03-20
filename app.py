@@ -19,23 +19,17 @@ st.markdown("""
         margin-top: 20px;
         color: #1e1e1e;
     }
-    /* Animacja pulsowania dla statusu AI */
-    @keyframes pulse {
-        0% { opacity: 0.4; }
-        50% { opacity: 1; }
-        100% { opacity: 0.4; }
-    }
-    .status-pulse {
-        animation: pulse 2s infinite;
+    .status-text {
         color: #002d62;
         font-weight: bold;
         text-align: center;
         font-size: 0.9em;
+        margin-bottom: 10px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. Baza Danych (Twoja pełna lista) ---
+# --- 2. Baza Danych ---
 ALL_COUNTRIES = sorted([
     "Afganistan", "Albania", "Algieria", "Andora", "Angola", "Arabia Saudyjska", "Argentyna", "Armenia", "Australia", "Austria",
     "Azerbejdżan", "Bahamy", "Bahrajn", "Bangladesz", "Barbados", "Belgia", "Belize", "Benin", "Bhutan", "Białoruś", "Boliwia",
@@ -138,8 +132,9 @@ if os.path.exists("logo.png"):
         <img src="data:image/png;base64,{encoded_logo}" width="550">
         </div><p style="text-align: center; color: #555; margin-top: 20px; font-weight: 500; font-size: 1.1em;">{L['slogan']}</p>""", unsafe_allow_html=True)
 
-# --- STATUS AI (PULSACYJNY) ---
-st.markdown(f'<p class="status-pulse">{L["status_wait"]}</p>', unsafe_allow_html=True)
+# --- STATUS AI (MIEJSCE NA PODMIANĘ) ---
+status_placeholder = st.empty()
+status_placeholder.markdown(f'<p class="status-text">{L["status_wait"]}</p>', unsafe_allow_html=True)
 st.markdown("---")
 
 # --- 6. Interfejs Główny ---
@@ -168,9 +163,8 @@ else:
         if not api_key: st.error("Podaj klucz API!")
         else:
             try:
-                # Zmiana statusu na roboczy przed startem AI
-                status_placeholder = st.empty()
-                status_placeholder.markdown(f'<p class="status-pulse" style="color: #d4a017;">{L["status_work"]}</p>', unsafe_allow_html=True)
+                # Podmiana statusu na górze
+                status_placeholder.markdown(f'<p class="status-text" style="color: #d4a017;">{L["status_work"]}</p>', unsafe_allow_html=True)
                 
                 client = OpenAI(api_key=api_key)
                 with st.spinner(L["loading"]):
@@ -187,8 +181,8 @@ else:
                     
                     st.markdown(f'<div class="report-card"><h2>{selected_country} | {target_item}</h2>{resp.choices[0].message.content.replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
                 
-                # Przywrócenie statusu oczekiwania po zakończeniu
-                status_placeholder.markdown(f'<p class="status-pulse">{L["status_wait"]}</p>', unsafe_allow_html=True)
+                # Powrót do statusu oczekiwania po zakończeniu
+                status_placeholder.markdown(f'<p class="status-text">{L["status_wait"]}</p>', unsafe_allow_html=True)
                 
             except Exception as e: st.error(f"Błąd: {e}")
 
