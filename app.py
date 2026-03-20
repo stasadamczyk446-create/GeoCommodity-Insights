@@ -19,10 +19,23 @@ st.markdown("""
         margin-top: 20px;
         color: #1e1e1e;
     }
+    /* Animacja pulsowania dla statusu AI */
+    @keyframes pulse {
+        0% { opacity: 0.4; }
+        50% { opacity: 1; }
+        100% { opacity: 0.4; }
+    }
+    .status-pulse {
+        animation: pulse 2s infinite;
+        color: #002d62;
+        font-weight: bold;
+        text-align: center;
+        font-size: 0.9em;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. Baza Danych ---
+# --- 2. Baza Danych (Twoja pełna lista) ---
 ALL_COUNTRIES = sorted([
     "Afganistan", "Albania", "Algieria", "Andora", "Angola", "Arabia Saudyjska", "Argentyna", "Armenia", "Australia", "Austria",
     "Azerbejdżan", "Bahamy", "Bahrajn", "Bangladesz", "Barbados", "Belgia", "Belize", "Benin", "Bhutan", "Białoruś", "Boliwia",
@@ -69,6 +82,8 @@ LANG = {
         "pol_submode_label": "🔍 Obszar polityki:",
         "pol_options": ["Partie Polityczne", "System Władzy", "Główne Osoby w Państwie"],
         "btn_gen": "🚀 GENERUJ RAPORT",
+        "status_wait": "🤖 Status AI: Oczekiwanie na instrukcje",
+        "status_work": "⏳ Status AI: Generowanie raportu...",
         "loading": "Trwa analiza...",
         "footer": "Projekt edukacyjny - Uniwersytet Warszawski"
     },
@@ -90,6 +105,8 @@ LANG = {
         "pol_submode_label": "🔍 Politics area:",
         "pol_options": ["Political Parties", "Government System", "Key Figures"],
         "btn_gen": "🚀 GENERATE REPORT",
+        "status_wait": "🤖 AI Status: Ready & Waiting",
+        "status_work": "⏳ AI Status: Generating report...",
         "loading": "Analyzing...",
         "footer": "Educational Project - University of Warsaw"
     }
@@ -121,6 +138,8 @@ if os.path.exists("logo.png"):
         <img src="data:image/png;base64,{encoded_logo}" width="550">
         </div><p style="text-align: center; color: #555; margin-top: 20px; font-weight: 500; font-size: 1.1em;">{L['slogan']}</p>""", unsafe_allow_html=True)
 
+# --- STATUS AI (PULSACYJNY) ---
+st.markdown(f'<p class="status-pulse">{L["status_wait"]}</p>', unsafe_allow_html=True)
 st.markdown("---")
 
 # --- 6. Interfejs Główny ---
@@ -149,6 +168,10 @@ else:
         if not api_key: st.error("Podaj klucz API!")
         else:
             try:
+                # Zmiana statusu na roboczy przed startem AI
+                status_placeholder = st.empty()
+                status_placeholder.markdown(f'<p class="status-pulse" style="color: #d4a017;">{L["status_work"]}</p>', unsafe_allow_html=True)
+                
                 client = OpenAI(api_key=api_key)
                 with st.spinner(L["loading"]):
                     if analysis_mode == L["mode_res"]:
@@ -163,6 +186,10 @@ else:
                                   {"role": "user", "content": p}])
                     
                     st.markdown(f'<div class="report-card"><h2>{selected_country} | {target_item}</h2>{resp.choices[0].message.content.replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
+                
+                # Przywrócenie statusu oczekiwania po zakończeniu
+                status_placeholder.markdown(f'<p class="status-pulse">{L["status_wait"]}</p>', unsafe_allow_html=True)
+                
             except Exception as e: st.error(f"Błąd: {e}")
 
 st.markdown("---")
