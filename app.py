@@ -19,12 +19,19 @@ st.markdown("""
         margin-top: 20px;
         color: #1e1e1e;
     }
+    .status-container {
+        text-align: center;
+        margin-top: -10px;
+        margin-bottom: 20px;
+    }
     .status-text {
+        color: #555;
+        font-weight: 500;
+        font-size: 1.0em;
+    }
+    .status-highlight {
         color: #002d62;
         font-weight: bold;
-        text-align: center;
-        font-size: 0.9em;
-        margin-bottom: 10px;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -76,8 +83,8 @@ LANG = {
         "pol_submode_label": "🔍 Obszar polityki:",
         "pol_options": ["Partie Polityczne", "System Władzy", "Główne Osoby w Państwie"],
         "btn_gen": "🚀 GENERUJ RAPORT",
-        "status_wait": "🤖 Status AI: Oczekiwanie na instrukcje",
-        "status_work": "⏳ Status AI: Generowanie raportu...",
+        "status_wait": "🤖 Oczekiwanie na instrukcje",
+        "status_work": "⏳ Generowanie raportu...",
         "loading": "Trwa analiza...",
         "footer": "Projekt edukacyjny - Uniwersytet Warszawski"
     },
@@ -99,8 +106,8 @@ LANG = {
         "pol_submode_label": "🔍 Politics area:",
         "pol_options": ["Political Parties", "Government System", "Key Figures"],
         "btn_gen": "🚀 GENERATE REPORT",
-        "status_wait": "🤖 AI Status: Ready & Waiting",
-        "status_work": "⏳ AI Status: Generating report...",
+        "status_wait": "🤖 Ready & Waiting",
+        "status_work": "⏳ Generating report...",
         "loading": "Analyzing...",
         "footer": "Educational Project - University of Warsaw"
     }
@@ -130,11 +137,15 @@ if os.path.exists("logo.png"):
     encoded_logo = get_base64_logo("logo.png")
     st.markdown(f"""<div style="display: flex; justify-content: center; padding-top: 25px;">
         <img src="data:image/png;base64,{encoded_logo}" width="550">
-        </div><p style="text-align: center; color: #555; margin-top: 20px; font-weight: 500; font-size: 1.1em;">{L['slogan']}</p>""", unsafe_allow_html=True)
+        </div>""", unsafe_allow_html=True)
 
-# --- STATUS AI (MIEJSCE NA PODMIANĘ) ---
+# --- ZINTEGROWANY STATUS I SLOGAN ---
 status_placeholder = st.empty()
-status_placeholder.markdown(f'<p class="status-text">{L["status_wait"]}</p>', unsafe_allow_html=True)
+status_placeholder.markdown(f"""
+    <div class="status-container">
+        <p class="status-text">{L['slogan']} | <span class="status-highlight">{L["status_wait"]}</span></p>
+    </div>
+    """, unsafe_allow_html=True)
 st.markdown("---")
 
 # --- 6. Interfejs Główny ---
@@ -163,8 +174,12 @@ else:
         if not api_key: st.error("Podaj klucz API!")
         else:
             try:
-                # Podmiana statusu na górze
-                status_placeholder.markdown(f'<p class="status-text" style="color: #d4a017;">{L["status_work"]}</p>', unsafe_allow_html=True)
+                # Podmiana statusu na górze (Slogan zostaje, status się zmienia)
+                status_placeholder.markdown(f"""
+                    <div class="status-container">
+                        <p class="status-text">{L['slogan']} | <span class="status-highlight" style="color: #d4a017;">{L["status_work"]}</span></p>
+                    </div>
+                    """, unsafe_allow_html=True)
                 
                 client = OpenAI(api_key=api_key)
                 with st.spinner(L["loading"]):
@@ -181,8 +196,12 @@ else:
                     
                     st.markdown(f'<div class="report-card"><h2>{selected_country} | {target_item}</h2>{resp.choices[0].message.content.replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
                 
-                # Powrót do statusu oczekiwania po zakończeniu
-                status_placeholder.markdown(f'<p class="status-text">{L["status_wait"]}</p>', unsafe_allow_html=True)
+                # Powrót do statusu bazowego
+                status_placeholder.markdown(f"""
+                    <div class="status-container">
+                        <p class="status-text">{L['slogan']} | <span class="status-highlight">{L["status_wait"]}</span></p>
+                    </div>
+                    """, unsafe_allow_html=True)
                 
             except Exception as e: st.error(f"Błąd: {e}")
 
