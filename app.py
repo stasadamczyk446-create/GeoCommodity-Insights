@@ -2,6 +2,8 @@ import streamlit as st
 from openai import OpenAI
 import os
 import base64
+import plotly.express as px
+import pandas as pd
 
 # --- 1. Konfiguracja Strony ---
 st.set_page_config(page_title="GeoCommodity Insights", layout="wide", page_icon="🌍")
@@ -20,132 +22,148 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. PEŁNA BAZA PAŃSTW ŚWIATA (195+) ---
+# --- 2. Baza Danych ---
 ALL_COUNTRIES = sorted([
-    "Afganistan", "Albania", "Algieria", "Andora", "Angola", "Antigua i Barbuda", "Arabia Saudyjska", "Argentyna", "Armenia", "Australia", 
-    "Austria", "Azerbejdżan", "Bahamy", "Bahrajn", "Bangladesz", "Barbados", "Belgia", "Belize", "Benin", "Bhutan", "Białoruś", "Boliwia", 
-    "Bośnia i Hercegowina", "Botswana", "Brazylia", "Brunei", "Bułgaria", "Burkina Faso", "Burundi", "Chile", "Chiny", "Chorwacja", "Cypr", 
-    "Czad", "Czarnogóra", "Czechy", "Dania", "Demokratyczna Republika Konga", "Dominika", "Dominikana", "Dżibuti", "Egipt", "Ekwador", 
-    "Erytrea", "Estonia", "Eswatini", "Etiopia", "Fidżi", "Filipiny", "Finlandia", "Francja", "Gabon", "Gambia", "Ghana", "Grecja", 
-    "Grenada", "Gruzja", "Gujana", "Gwatemala", "Gwinea", "Gwinea Bissau", "Gwinea Równikowa", "Haiti", "Hiszpania", "Holandia", "Honduras", 
-    "Indie", "Indonezja", "Irak", "Iran", "Irlandia", "Islandia", "Izrael", "Jamajka", "Japonia", "Jemen", "Jordania", "Kambodża", "Kamerun", 
-    "Kanada", "Katar", "Kazachstan", "Kenia", "Kirgistan", "Kiribati", "Kolumbia", "Komory", "Kongo", "Korea Południowa", "Korea Północna", 
-    "Kostaryka", "Kuba", "Kuwejt", "Laos", "Lesotho", "Liban", "Liberia", "Libia", "Liechtenstein", "Litwa", "Luksemburg", "Łotwa", 
-    "Macedonia Północna", "Madagaskar", "Malawi", "Malediwy", "Malezja", "Mali", "Malta", "Maroko", "Mauretania", "Mauritius", "Meksyk", 
-    "Mikronezja", "Birma (Myanmar)", "Mołdawia", "Monako", "Mongolia", "Mozambik", "Namibia", "Nauru", "Nepal", "Niemcy", "Niger", 
-    "Nigeria", "Nikaragua", "Norwegia", "Nowa Zelandia", "Oman", "Pakistan", "Palau", "Panama", "Papua-Nowa Gwinea", "Paragwaj", "Peru", 
-    "Polska", "Portugalia", "Republika Środkowoafrykańska", "Republika Południowej Afryki", "Rosja", "Rumunia", "Rwanda", "Saint Kitts i Nevis", 
-    "Saint Lucia", "Saint Vincent i Grenadyny", "Salwador", "Samoa", "San Marino", "Senegal", "Serbia", "Seszele", "Sierra Leone", 
+    "Afganistan", "Albania", "Algieria", "Andora", "Angola", "Arabia Saudyjska", "Argentyna", "Armenia", "Australia", "Austria",
+    "Azerbejdżan", "Bahamy", "Bahrajn", "Bangladesz", "Barbados", "Belgia", "Belize", "Benin", "Bhutan", "Białoruś", "Boliwia",
+    "Bośnia i Hercegowina", "Botswana", "Brazylia", "Brunei", "Bułgaria", "Burkina Faso", "Burundi", "Chile", "Chiny", "Chorwacja",
+    "Cypr", "Czad", "Czarnogóra", "Czechy", "Dania", "Egipt", "Ekwador", "Erytrea", "Estonia", "Etiopia", "Filipiny", "Finlandia", 
+    "Francja", "Gabon", "Gambia", "Ghana", "Grecja", "Gruzja", "Gwatemala", "Gwinea", "Haiti", "Hiszpania", "Holandia", "Honduras", 
+    "Indie", "Indonezja", "Irak", "Iran", "Irlandia", "Islandia", "Izrael", "Jamajka", "Japonia", "Jemen", "Jordania", "Kambodża", 
+    "Kamerun", "Kanada", "Katar", "Kazachstan", "Kenia", "Kirgistan", "Kolumbia", "Kongo", "Korea Południowa", "Korea Północna", 
+    "Kostaryka", "Kuba", "Kuwejt", "Laos", "Liban", "Liberia", "Libia", "Litwa", "Luksemburg", "Łotwa", "Macedonia Północna", 
+    "Madagaskar", "Malezja", "Malta", "Maroko", "Meksyk", "Mołdawia", "Monako", "Mongolia", "Mozambik", "Namibia", "Nepal", 
+    "Niemcy", "Niger", "Nigeria", "Nikaragua", "Norwegia", "Nowa Zelandia", "Oman", "Pakistan", "Panama", "Paragwaj", "Peru", 
+    "Polska", "Portugalia", "Republika Południowej Afryki", "Rosja", "Rumunia", "Rwanda", "Salwador", "Senegal", "Serbia", 
     "Singapur", "Słowacja", "Słowenia", "Somalia", "Sri Lanka", "Sudan", "Surinam", "Syria", "Szwajcaria", "Szwecja", "Tadżykistan", 
-    "Tajlandia", "Tajwan", "Tanzania", "Togo", "Tonga", "Trynidad i Tobago", "Tunezja", "Turcja", "Turkmenistan", "Tuvalu", "Uganda", 
-    "Ukraina", "Urugwaj", "USA", "Uzbekistan", "Vanuatu", "Watykan", "Wenezuela", "Węgry", "Wielka Brytania", "Wietnam", "Włochy", 
-    "Wybrzeże Kości Słoniowej", "Wyspy Marshalla", "Wyspy Salomona", "Zambia", "Zimbabwe", "Zjednoczone Emiraty Arabskie"
+    "Tajlandia", "Tajwan", "Tanzania", "Tunezja", "Turcja", "Turkmenistan", "Uganda", "Ukraina", "Urugwaj", "USA", "Uzbekistan", 
+    "Wenezuela", "Węgry", "Wielka Brytania", "Wietnam", "Włochy", "Wybrzeże Kości Słoniowej", "Zambia", "Zimbabwe", "ZEA"
 ])
 
-# --- 3. ROZSZERZONA LISTA SUROWCÓW (25+) ---
-COMMODITIES = sorted([
-    # Energetyka
-    "Gaz Ziemny", "Ropa Naftowa", "Węgiel Kamienny", "Uran", "Wodór",
-    # Metale Przemysłowe i Szlachetne
-    "Miedź", "Aluminium", "Żelazo", "Nikiel", "Cynk", "Złoto", "Srebro", "Platyna", "Pallad",
-    # Surowce Krytyczne i Technologiczne
-    "Lit", "Kobalt", "Metale Ziem Rzadkich", "Grafit", "Krzem", "Magnez",
-    # Rolnictwo
-    "Pszenica (Zboże)", "Kukurydza", "Rzepak", "Ryż", "Kawa", "Kauczuk"
-])
+COMMODITIES = sorted(["Gaz Ziemny", "Ropa Naftowa", "Węgiel Kamienny", "Uran", "Wodór", "Miedź", "Aluminium", "Żelazo", "Nikiel", "Cynk", "Złoto", "Srebro", "Platyna", "Lit", "Kobalt", "Metale Ziem Rzadkich", "Grafit", "Krzem", "Magnez", "Pszenica (Zboże)", "Kukurydza", "Rzepak", "Ryż", "Kawa", "Kauczuk"])
 
-# --- 4. Słownik Języków ---
+gold_data = {
+    'Country': ['USA', 'Germany', 'Italy', 'France', 'Russia', 'China', 'Switzerland', 'Japan', 'India', 'Turkey', 'Netherlands', 'Poland', 'Saudi Arabia', 'Portugal', 'Kazakhstan', 'Uzbekistan', 'Brazil', 'UK', 'Spain', 'Austria', 'Australia'],
+    'ISO_Code': ['USA', 'DEU', 'ITA', 'FRA', 'RUS', 'CHN', 'CHE', 'JPN', 'IND', 'TUR', 'NLD', 'POL', 'SAU', 'PRT', 'KAZ', 'UZB', 'BRA', 'GBR', 'ESP', 'AUT', 'AUS'],
+    'Tons': [8133, 3352, 2451, 2436, 2332, 2264, 1040, 846, 822, 584, 612, 359, 323, 382, 309, 362, 129, 310, 281, 280, 79]
+}
+df_gold = pd.DataFrame(gold_data)
+
+# --- 3. Słownik Języków ---
 LANG = {
-    "Polski 🇵🇱": {
+    "Polska 🇵🇱": {
         "code": "PL",
         "slogan": "Strategiczna Analityka wspierana przez AI",
         "api_label": "Klucz API OpenAI",
-        "mode_label": "Tryb analizy:",
+        "nav_analysis": "📂 ANALIZA TEKSTOWA",
+        "nav_maps": "🗺️ MODUŁ WIZUALNY",
+        "mode_label": "Wybierz tryb:",
         "mode_res": "Surowce Strategiczne",
-        "mode_pol": "Partie Polityczne",
+        "mode_pol": "Polityka",
+        "mode_rel": "Analiza Relacji",
+        "map_option_off": "Wyłączony",
+        "map_option_gold": "Mapa Rezerw Złota",
         "country_label": "📍 Wybierz Państwo:",
+        "country2_label": "🤝 Wybierz drugie Państwo:",
         "res_label": "💎 Wybierz Surowiec:",
-        "pol_label": "🏛️ Wybierz Partię (lub wpisz):",
-        "btn_gen": "🚀 GENERUJ RAPORT STRATEGICZNY",
-        "loading": "Trwa analiza geopolityczna...",
+        "pol_submode_label": "🔍 Obszar polityki:",
+        "pol_options": ["Partie Polityczne", "System Władzy", "Główne Osoby w Państwie"],
+        "btn_gen": "🚀 GENERUJ RAPORT",
+        "loading": "Trwa analiza...",
         "footer": "Projekt edukacyjny - Uniwersytet Warszawski"
     },
     "English 🇬🇧": {
         "code": "EN",
         "slogan": "AI-Powered Strategic Intelligence",
         "api_label": "OpenAI API Key",
-        "mode_label": "Analysis Mode:",
+        "nav_analysis": "📂 TEXTUAL ANALYSIS",
+        "nav_maps": "🗺️ VISUAL MODULE",
+        "mode_label": "Select mode:",
         "mode_res": "Strategic Commodities",
-        "mode_pol": "Political Parties",
+        "mode_pol": "Politics",
+        "mode_rel": "Relationship Analysis",
+        "map_option_off": "Disabled",
+        "map_option_gold": "Gold Reserves Map",
         "country_label": "📍 Select Country:",
+        "country2_label": "🤝 Select second Country:",
         "res_label": "💎 Select Commodity:",
-        "pol_label": "🏛️ Select Party (or type):",
-        "btn_gen": "🚀 GENERATE STRATEGIC REPORT",
-        "loading": "Analyzing geopolitics...",
+        "pol_submode_label": "🔍 Politics area:",
+        "pol_options": ["Political Parties", "Government System", "Key Figures"],
+        "btn_gen": "🚀 GENERATE REPORT",
+        "loading": "Analyzing...",
         "footer": "Educational Project - University of Warsaw"
     }
 }
 
-# --- 5. Sidebar ---
+# --- 4. Sidebar ---
 with st.sidebar:
     lang_display = st.selectbox("Language / Język", list(LANG.keys()))
     L = LANG[lang_display]
     st.markdown("---")
     api_key = st.text_input(L["api_label"], type="password")
-    analysis_mode = st.radio(L["mode_label"], [L["mode_res"], L["mode_pol"]])
+    
+    st.markdown(f"### {L['nav_analysis']}")
+    analysis_mode = st.radio(L["mode_label"], [L["mode_res"], L["mode_pol"], L["mode_rel"]])
+    
+    st.markdown("---")
+    st.markdown(f"### {L['nav_maps']}")
+    map_selection = st.selectbox(L["nav_maps"], [L["map_option_off"], L["map_option_gold"]])
+    
+    st.markdown("---")
     model_version = st.selectbox("Model AI:", ["gpt-4o-mini", "gpt-4o"])
 
-# --- 6. Wyśrodkowane Logo (550px) ---
+# --- 5. Logo (550px) ---
 if os.path.exists("logo.png"):
     def get_base64_logo(file):
-        with open(file, "rb") as f:
-            return base64.b64encode(f.read()).decode()
+        with open(file, "rb") as f: return base64.b64encode(f.read()).decode()
     encoded_logo = get_base64_logo("logo.png")
-    st.markdown(f"""
-        <div style="display: flex; justify-content: center; padding-top: 25px;">
-            <img src="data:image/png;base64,{encoded_logo}" width="550">
-        </div>
-        <p style="text-align: center; color: #555; margin-top: 20px; font-weight: 500; font-size: 1.1em;">{L['slogan']}</p>
-        """, unsafe_allow_html=True)
-else:
-    st.markdown(f"<h1 style='text-align: center;'>GeoCommodity Insights</h1>", unsafe_allow_html=True)
+    st.markdown(f"""<div style="display: flex; justify-content: center; padding-top: 25px;">
+        <img src="data:image/png;base64,{encoded_logo}" width="550">
+        </div><p style="text-align: center; color: #555; margin-top: 20px; font-weight: 500; font-size: 1.1em;">{L['slogan']}</p>""", unsafe_allow_html=True)
 
 st.markdown("---")
 
-# --- 7. Wybór danych ---
-col1, col2 = st.columns(2)
-with col1:
-    selected_country = st.selectbox(L["country_label"], ALL_COUNTRIES)
-with col2:
-    if analysis_mode == L["mode_res"]:
-        target_item = st.selectbox(L["res_label"], COMMODITIES)
-    else:
-        target_item = st.text_input(L["pol_label"], value="Główne siły polityczne")
+# --- 6. Interfejs Główny ---
+if map_selection == L["map_option_gold"]:
+    st.subheader(f"🗺️ {L['map_option_gold']}")
+    fig = px.choropleth(df_gold, locations="ISO_Code", color="Tons", hover_name="Country",
+                        color_continuous_scale=px.colors.diverging.RdYlGn,
+                        range_color=[0, 2500],
+                        labels={'Tons':'Gold (Tons)'})
+    fig.update_layout(geo=dict(showframe=False, projection_type='equirectangular'), margin={"r":0,"t":0,"l":0,"b":0})
+    st.plotly_chart(fig, use_container_width=True)
+    st.markdown("*Source: World Gold Council Data (2024)*")
+else:
+    col1, col2 = st.columns(2)
+    with col1:
+        selected_country = st.selectbox(L["country_label"], ALL_COUNTRIES)
+    with col2:
+        if analysis_mode == L["mode_res"]:
+            target_item = st.selectbox(L["res_label"], COMMODITIES)
+        elif analysis_mode == L["mode_pol"]:
+            target_item = st.selectbox(L["pol_submode_label"], L["pol_options"])
+        else:
+            target_item = st.selectbox(L["country2_label"], ALL_COUNTRIES, index=1)
 
-# --- 8. Silnik AI ---
-if st.button(L["btn_gen"], use_container_width=True):
-    if not api_key:
-        st.error("Proszę podać klucz API!")
-    else:
-        try:
-            client = OpenAI(api_key=api_key)
-            with st.spinner(L["loading"]):
-                prompt = f"Analiza {analysis_mode} dla {selected_country} w odniesieniu do {target_item}. Język: {L['code']}."
-                response = client.chat.completions.create(
-                    model=model_version,
-                    messages=[{"role": "user", "content": prompt}]
-                )
-                st.markdown(f"""
-                <div class="report-card">
-                    <h2 style="color: #002d62; border-bottom: 2px solid #f0f2f6; padding-bottom: 15px;">
-                        {selected_country} | {target_item}
-                    </h2>
-                    <div style="line-height: 1.7;">{response.choices[0].message.content.replace('\n', '<br>')}</div>
-                </div>
-                """, unsafe_allow_html=True)
-        except Exception as e:
-            st.error(f"Błąd: {e}")
+    if st.button(L["btn_gen"], use_container_width=True):
+        if not api_key: st.error("Podaj klucz API!")
+        else:
+            try:
+                client = OpenAI(api_key=api_key)
+                with st.spinner(L["loading"]):
+                    if analysis_mode == L["mode_res"]:
+                        p = f"Analiza {target_item} w {selected_country}. Strategia i gospodarka."
+                    elif analysis_mode == L["mode_pol"]:
+                        p = f"Analiza {target_item} w {selected_country}. Skup się tylko na tym konkretnym obszarze."
+                    else:
+                        p = f"Relacje {selected_country} - {target_item}. Dyplomacja i gospodarka."
+                    
+                    resp = client.chat.completions.create(model=model_version,
+                        messages=[{"role": "system", "content": f"Ekspert geopolityki. Język: {L['code']}. Bez hashtagów."},
+                                  {"role": "user", "content": p}])
+                    
+                    st.markdown(f'<div class="report-card"><h2>{selected_country} | {target_item}</h2>{resp.choices[0].message.content.replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
+            except Exception as e: st.error(f"Błąd: {e}")
 
-# --- 9. Stopka ---
 st.markdown("---")
 st.markdown(f"<p style='text-align: center; font-size: 0.85em; color: #888;'>© 2024 GeoCommodity Insights | {L['footer']}</p>", unsafe_allow_html=True)
