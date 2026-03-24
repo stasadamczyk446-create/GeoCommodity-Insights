@@ -4,6 +4,7 @@ import os
 import base64
 import plotly.express as px
 import pandas as pd
+import numpy as np
 
 # --- 1. Konfiguracja Strony ---
 st.set_page_config(page_title="GeoCommodity Insights", layout="wide", page_icon="🌍")
@@ -65,6 +66,9 @@ gold_data = {
 }
 df_gold = pd.DataFrame(gold_data)
 
+# Dodajemy kolumnę logarytmiczną dla lepszego zróżnicowania kolorów
+df_gold['Log_Tons'] = np.log10(df_gold['Tons'])
+
 # --- Pełna Lista Państw ---
 ALL_COUNTRIES = sorted(df_gold['Country'].tolist() + [
     "Wielka Brytania", "Kanada", "Norwegia", "Nigeria", "Chile", "Argentyna", "Azerbejdżan", 
@@ -74,7 +78,7 @@ ALL_COUNTRIES = sorted(df_gold['Country'].tolist() + [
     "Tajwan", "Ukraina", "Wenezuela", "Węgry", "Wietnam", "Włochy"
 ])
 
-# --- Pełna Lista Surowców (Przywrócona) ---
+# --- Pełna Lista Surowców ---
 COMMODITIES = sorted([
     "Gaz Ziemny", "Ropa Naftowa", "Węgiel Kamienny", "Uran", "Wodór",
     "Miedź", "Aluminium", "Żelazo", "Nikiel", "Cynk", "Złoto", "Srebro", "Platyna",
@@ -139,17 +143,21 @@ st.markdown("---")
 
 # --- 6. Interfejs Główny ---
 if map_selection == L["map_option_gold"]:
-    st.subheader(f"🗺️ {L['map_option_gold']} (Ton)")
+    st.subheader(f"🗺️ {L['map_option_gold']} (Logarytmiczne zróżnicowanie)")
+    
+    # Skala logarytmiczna rozwiązuje problem dużych różnic
     fig = px.choropleth(df_gold, 
                         locations="ISO_Code", 
-                        color="Tons", 
+                        color="Log_Tons", 
                         hover_name="Country",
-                        color_continuous_scale="Geyser", # Nowa, bardziej prestiżowa paleta kolorów
-                        labels={'Tons':'Złoto (Tony)'})
+                        hover_data={"Log_Tons": False, "Tons": True},
+                        color_continuous_scale="Spectral_r", 
+                        labels={'Log_Tons':'Skala Potęgi', 'Tons': 'Tony'})
+    
     fig.update_layout(geo=dict(showframe=False, projection_type='natural earth'), 
                       margin={"r":0,"t":40,"l":0,"b":0})
     st.plotly_chart(fig, use_container_width=True)
-    st.info("Mapa pokazuje rezerwy dla 50 największych posiadaczy złota na świecie.")
+    st.info("Zastosowano skalę logarytmiczną, aby uwidocznić różnice między średnimi a dużymi rezerwami.")
 else:
     col1, col2 = st.columns(2)
     with col1: selected_country = st.selectbox(L["country_label"], ALL_COUNTRIES)
@@ -167,11 +175,11 @@ else:
                 with st.spinner(L["loading"]):
                     prompt = f"Analiza {target_item} w {selected_country}. {analysis_mode}."
                     resp = client.chat.completions.create(model=model_version,
-                        messages=[{"role": "system", "content": f"Jesteś ekspertem geopolityki. Odpowiadasz w języku: {L['code']}."},
+                        messages=[{"role": "system", "content": f"Ekspert geopolityki. Język: {L['code']}."},
                                   {"role": "user", "content": prompt}])
                     st.markdown(f'<div class="report-card"><h2>{selected_country} | {target_item}</h2>{resp.choices[0].message.content.replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
                 status_placeholder.markdown(f'<div class="status-container"><p class="status-text">{L["slogan"]} | <span class="status-highlight">{L["status_wait"]}</span></p></div>', unsafe_allow_html=True)
             except Exception as e: st.error(f"Błąd: {e}")
 
 st.markdown("---")
-st.markdown(f"<p style='text-align: center; font-size: 0.85em; color: #888;'>© 2024 GeoCommodity Insights | {L['footer']}</p>", unsafe_allow_html=True)
+st.markdown(f"<p style='text-align: center; font-size: 0.85em; color: #888;'>© 2026 GeoCommodity Insights | {L['footer']}</p>", unsafe_allow_html=True)
