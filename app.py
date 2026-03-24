@@ -55,20 +55,20 @@ df_gold['Log_Tons'] = np.log10(df_gold['Tons'])
 
 # --- 3. Baza Danych Zagrożeń Globalnych ---
 threat_data = {
-    'Country': ['Ukraina', 'Rosja', 'Izrael', 'Palestyna', 'Syria', 'Jemen', 'Tajwan', 'Korea Północna', 'Iran', 'Afganistan', 'Somalia', 'Mali', 'Burkina Faso', 'Niger', 'DR Konga', 'Wenezuela', 'Argentyna', 'Turcja', 'Egipt', 'Pakistan', 'Liban'],
-    'ISO_Code': ['UKR', 'RUS', 'ISR', 'PSE', 'SYR', 'YEM', 'TWN', 'PRK', 'IRN', 'AFG', 'SOM', 'MLI', 'BFA', 'NER', 'COD', 'VEN', 'ARG', 'TUR', 'EGY', 'PAK', 'LBN'],
-    'Kategoria': ['Wojna', 'Wojna', 'Wojna', 'Wojna', 'Wojna', 'Wojna', 'Niestabilność Polityczna', 'Niestabilność Polityczna', 'Niestabilność Polityczna', 'Terroryzm', 'Terroryzm', 'Terroryzm', 'Terroryzm', 'Terroryzm', 'Terroryzm', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy']
+    'Country': ['Ukraina', 'Rosja', 'Izrael', 'Palestyna', 'Syria', 'Jemen', 'Tajwan', 'Korea Północna', 'Iran', 'Afganistan', 'Somalia', 'Mali', 'Burkina Faso', 'Niger', 'DR Konga', 'Wenezuela', 'Argentyna', 'Turcja', 'Egipt', 'Pakistan', 'Liban', 'Meksyk', 'Mjanma'],
+    'ISO_Code': ['UKR', 'RUS', 'ISR', 'PSE', 'SYR', 'YEM', 'TWN', 'PRK', 'IRN', 'AFG', 'SOM', 'MLI', 'BFA', 'NER', 'COD', 'VEN', 'ARG', 'TUR', 'EGY', 'PAK', 'LBN', 'MEX', 'MMR'],
+    'Kategoria': ['Wojna', 'Wojna', 'Wojna', 'Wojna', 'Wojna', 'Wojna', 'Niestabilność Polityczna', 'Niestabilność Polityczna', 'Niestabilność Polityczna', 'Terroryzm', 'Terroryzm', 'Terroryzm', 'Terroryzm', 'Terroryzm', 'Terroryzm', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Konflikt zbrojny', 'Konflikt zbrojny']
 }
 df_threats = pd.DataFrame(threat_data)
 
 color_map_threats = {
     'Wojna': '#e74c3c',
+    'Konflikt zbrojny': '#c0392b',
     'Niestabilność Polityczna': '#e67e22',
     'Terroryzm': '#d35400',
     'Kryzys Gospodarczy': '#8e44ad'
 }
 
-# --- Pełna Lista Państw (Przywrócona do wszystkich kategorii) ---
 ALL_COUNTRIES = sorted([
     "Afganistan", "Albania", "Algieria", "Andora", "Angola", "Arabia Saudyjska", "Argentyna", "Armenia", "Australia", "Austria",
     "Azerbejdżan", "Bahamy", "Bahrajn", "Bangladesz", "Barbados", "Belgia", "Belize", "Benin", "Bhutan", "Białoruś", "Boliwia",
@@ -156,7 +156,7 @@ elif map_selection == L["map_option_threats"]:
     st.subheader(L["map_option_threats"])
     fig_threats = px.choropleth(df_threats, locations="ISO_Code", color="Kategoria", hover_name="Country",
                         color_discrete_map=color_map_threats, 
-                        category_orders={"Kategoria": ["Wojna", "Niestabilność Polityczna", "Terroryzm", "Kryzys Gospodarczy"]},
+                        category_orders={"Kategoria": ["Wojna", "Konflikt zbrojny", "Niestabilność Polityczna", "Terroryzm", "Kryzys Gospodarczy"]},
                         labels={'Kategoria':''})
     fig_threats.update_layout(geo=dict(showframe=False, projection_type='natural earth'), margin={"r":0,"t":40,"l":0,"b":0})
     st.plotly_chart(fig_threats, use_container_width=True)
