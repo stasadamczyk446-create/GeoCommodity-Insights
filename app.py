@@ -5,6 +5,7 @@ import base64
 import plotly.express as px
 import pandas as pd
 import numpy as np
+import re
 
 # --- 1. Konfiguracja Strony ---
 st.set_page_config(page_title="GeoCommodity Insights", layout="wide", page_icon="🌍")
@@ -65,28 +66,13 @@ gold_data = {
     ]
 }
 df_gold = pd.DataFrame(gold_data)
-
-# Dodajemy kolumnę logarytmiczną dla lepszego zróżnicowania kolorów
 df_gold['Log_Tons'] = np.log10(df_gold['Tons'])
 
-# --- Pełna Lista Państw ---
-ALL_COUNTRIES = sorted(df_gold['Country'].tolist() + [
-    "Wielka Brytania", "Kanada", "Norwegia", "Nigeria", "Chile", "Argentyna", "Azerbejdżan", 
-    "Belgia", "Czechy", "Dania", "Egipt", "Finlandia", "Grecja", "Hiszpania", "Holandia", 
-    "Irak", "Iran", "Izrael", "Katar", "Kolumbia", "Kuwejt", "Meksyk", "Nowa Zelandia", 
-    "Oman", "Pakistan", "Portugalia", "Rumunia", "Słowacja", "Szwajcaria", "Szwecja", 
-    "Tajwan", "Ukraina", "Wenezuela", "Węgry", "Wietnam", "Włochy"
-])
+# --- Listy dla UI ---
+ALL_COUNTRIES = sorted(df_gold['Country'].tolist() + ["Wielka Brytania", "Kanada", "Norwegia", "Nigeria", "Chile"])
+COMMODITIES = sorted(["Gaz Ziemny", "Ropa Naftowa", "Węgiel Kamienny", "Uran", "Wodór", "Miedź", "Aluminium", "Żelazo", "Nikiel", "Cynk", "Złoto", "Srebro", "Platyna", "Lit", "Kobalt", "Metale Ziem Rzadkich", "Grafit", "Krzem", "Magnez", "Pszenica (Zboże)", "Kukurydza", "Rzepak", "Ryż", "Kawa", "Kauczuk"])
 
-# --- Pełna Lista Surowców ---
-COMMODITIES = sorted([
-    "Gaz Ziemny", "Ropa Naftowa", "Węgiel Kamienny", "Uran", "Wodór",
-    "Miedź", "Aluminium", "Żelazo", "Nikiel", "Cynk", "Złoto", "Srebro", "Platyna",
-    "Lit", "Kobalt", "Metale Ziem Rzadkich", "Grafit", "Krzem", "Magnez",
-    "Pszenica (Zboże)", "Kukurydza", "Rzepak", "Ryż", "Kawa", "Kauczuk"
-])
-
-# --- 3. Słownik Języków ---
+# --- 3. Języki ---
 LANG = {
     "Polska 🇵🇱": {
         "code": "PL", "slogan": "Strategiczna Analityka wspierana przez AI",
@@ -99,7 +85,8 @@ LANG = {
         "pol_options": ["Partie Polityczne", "System Władzy", "Główne Osoby w Państwie"],
         "btn_gen": "🚀 GENERUJ RAPORT", "status_wait": "🤖 Oczekiwanie na instrukcje",
         "status_work": "⏳ Generowanie raportu...", "loading": "Trwa analiza...",
-        "footer": "Projekt edukacyjny - Uniwersytet Warszawski"
+        "footer": "Projekt edukacyjny - Uniwersytet Warszawski",
+        "score_label": "🛡️ Wskaźnik Bezpieczeństwa Strategicznego (1-10):"
     },
     "English 🇬🇧": {
         "code": "EN", "slogan": "AI-Powered Strategic Intelligence",
@@ -112,7 +99,8 @@ LANG = {
         "pol_options": ["Political Parties", "Government System", "Key Figures"],
         "btn_gen": "🚀 GENERATE REPORT", "status_wait": "🤖 Ready & Waiting",
         "status_work": "⏳ Generating report...", "loading": "Analyzing...",
-        "footer": "Educational Project - University of Warsaw"
+        "footer": "Educational Project - University of Warsaw",
+        "score_label": "🛡️ Strategic Security Score (1-10):"
     }
 }
 
@@ -133,9 +121,7 @@ if os.path.exists("logo.png"):
     def get_base64_logo(file):
         with open(file, "rb") as f: return base64.b64encode(f.read()).decode()
     encoded_logo = get_base64_logo("logo.png")
-    st.markdown(f"""<div style="display: flex; justify-content: center; padding-top: 25px;">
-        <img src="data:image/png;base64,{encoded_logo}" width="550">
-        </div>""", unsafe_allow_html=True)
+    st.markdown(f'<div style="display: flex; justify-content: center; padding-top: 25px;"><img src="data:image/png;base64,{encoded_logo}" width="550"></div>', unsafe_allow_html=True)
 
 status_placeholder = st.empty()
 status_placeholder.markdown(f'<div class="status-container"><p class="status-text">{L["slogan"]} | <span class="status-highlight">{L["status_wait"]}</span></p></div>', unsafe_allow_html=True)
@@ -143,21 +129,12 @@ st.markdown("---")
 
 # --- 6. Interfejs Główny ---
 if map_selection == L["map_option_gold"]:
-    st.subheader(f"🗺️ {L['map_option_gold']} (Logarytmiczne zróżnicowanie)")
-    
-    # Skala logarytmiczna rozwiązuje problem dużych różnic
-    fig = px.choropleth(df_gold, 
-                        locations="ISO_Code", 
-                        color="Log_Tons", 
-                        hover_name="Country",
+    st.subheader(f"🗺️ {L['map_option_gold']} (Ton)")
+    fig = px.choropleth(df_gold, locations="ISO_Code", color="Log_Tons", hover_name="Country",
                         hover_data={"Log_Tons": False, "Tons": True},
-                        color_continuous_scale="Spectral_r", 
-                        labels={'Log_Tons':'Skala Potęgi', 'Tons': 'Tony'})
-    
-    fig.update_layout(geo=dict(showframe=False, projection_type='natural earth'), 
-                      margin={"r":0,"t":40,"l":0,"b":0})
+                        color_continuous_scale="Spectral_r", labels={'Log_Tons':'Skala Potęgi', 'Tons': 'Tony'})
+    fig.update_layout(geo=dict(showframe=False, projection_type='natural earth'), margin={"r":0,"t":40,"l":0,"b":0})
     st.plotly_chart(fig, use_container_width=True)
-    st.info("Zastosowano skalę logarytmiczną, aby uwidocznić różnice między średnimi a dużymi rezerwami.")
 else:
     col1, col2 = st.columns(2)
     with col1: selected_country = st.selectbox(L["country_label"], ALL_COUNTRIES)
@@ -173,11 +150,32 @@ else:
                 status_placeholder.markdown(f'<div class="status-container"><p class="status-text">{L["slogan"]} | <span class="status-highlight" style="color: #d4a017;">{L["status_work"]}</span></p></div>', unsafe_allow_html=True)
                 client = OpenAI(api_key=api_key)
                 with st.spinner(L["loading"]):
-                    prompt = f"Analiza {target_item} w {selected_country}. {analysis_mode}."
+                    # Rozbudowany prompt z prośbą o ocenę liczbową
+                    prompt = f"""Analiza {target_item} w {selected_country}. {analysis_mode}. 
+                    Na samym końcu raportu, w nowej linii, napisz TYLKO frazę: 'SCORE: X', gdzie X to Twoja ocena bezpieczeństwa strategicznego od 1 do 10. Bez hashtagów."""
+                    
                     resp = client.chat.completions.create(model=model_version,
-                        messages=[{"role": "system", "content": f"Ekspert geopolityki. Język: {L['code']}."},
+                        messages=[{"role": "system", "content": f"Jesteś ekspertem geopolityki. Odpowiadasz w języku: {L['code']}."},
                                   {"role": "user", "content": prompt}])
-                    st.markdown(f'<div class="report-card"><h2>{selected_country} | {target_item}</h2>{resp.choices[0].message.content.replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
+                    
+                    full_response = resp.choices[0].message.content
+                    
+                    # Logika wyciągania punktacji (RegEx)
+                    score_match = re.search(r"SCORE:\s*(\d+)", full_response)
+                    clean_report = re.sub(r"SCORE:\s*\d+", "", full_response) # Usuwamy techniczny zapis z tekstu raportu
+                    
+                    # Wyświetlenie Paska Bezpieczeństwa (jeśli znaleziono ocenę)
+                    if score_match:
+                        score_val = int(score_match.group(1))
+                        st.write(L["score_label"])
+                        # Kolor paska zależy od wyniku
+                        st.progress(score_val / 10)
+                        if score_val >= 8: st.success(f"Wynik: {score_val}/10 - Wysoka stabilność")
+                        elif score_val >= 5: st.warning(f"Wynik: {score_val}/10 - Umiarkowane ryzyko")
+                        else: st.error(f"Wynik: {score_val}/10 - Wysokie ryzyko strategiczne")
+
+                    st.markdown(f'<div class="report-card"><h2>{selected_country} | {target_item}</h2>{clean_report.replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
+                
                 status_placeholder.markdown(f'<div class="status-container"><p class="status-text">{L["slogan"]} | <span class="status-highlight">{L["status_wait"]}</span></p></div>', unsafe_allow_html=True)
             except Exception as e: st.error(f"Błąd: {e}")
 
