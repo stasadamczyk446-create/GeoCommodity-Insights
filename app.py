@@ -165,11 +165,20 @@ else:
                     
                     if score_match:
                         score_val = int(score_match.group(1))
-                        st.write(L["score_label"])
+                        # Wyświetlenie etykiety i numeru w jednej linii
+                        st.markdown(f"**{L['score_label']} {score_val}**")
+                        
+                        # Kolorystyka paska zgodnie z Twoimi wytycznymi
                         st.progress(score_val / 10)
-                        if score_val >= 8: st.success(f"Wynik: {score_val}/10")
-                        elif score_val >= 5: st.warning(f"Wynik: {score_val}/10")
-                        else: st.error(f"Wynik: {score_val}/10")
+                        
+                        if score_val >= 9:
+                            st.info(f"Status: Optymalny ({score_val}/10)") # Jasnozielony/turkusowy w Streamlit to info
+                        elif score_val >= 7:
+                            st.info(f"Status: Stabilny ({score_val}/10)") # Niebieski to info (standard)
+                        elif score_val >= 4:
+                            st.warning(f"Status: Umiarkowane ryzyko ({score_val}/10)") # Żółty
+                        else:
+                            st.error(f"Status: Wysokie ryzyko ({score_val}/10)") # Czerwony
 
                     st.markdown(f'<div class="report-card"><h3>{selected_country} | {target_item}</h3>{clean_report.replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
                 
