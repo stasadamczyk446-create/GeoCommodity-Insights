@@ -74,8 +74,24 @@ gold_data = {
 df_gold = pd.DataFrame(gold_data)
 df_gold['Log_Tons'] = np.log10(df_gold['Tons'])
 
-# --- Listy dla UI ---
-ALL_COUNTRIES = sorted(df_gold['Country'].tolist() + ["Wielka Brytania", "Kanada", "Norwegia", "Nigeria", "Chile"])
+# --- Pełna Lista Państw (PRZYWRÓCONA) ---
+ALL_COUNTRIES = sorted([
+    "Afganistan", "Albania", "Algieria", "Andora", "Angola", "Arabia Saudyjska", "Argentyna", "Armenia", "Australia", "Austria",
+    "Azerbejdżan", "Bahamy", "Bahrajn", "Bangladesz", "Barbados", "Belgia", "Belize", "Benin", "Bhutan", "Białoruś", "Boliwia",
+    "Bośnia i Hercegowina", "Botswana", "Brazylia", "Brunei", "Bułgaria", "Burkina Faso", "Burundi", "Chile", "Chiny", "Chorwacja",
+    "Cypr", "Czad", "Czarnogóra", "Czechy", "Dania", "Egipt", "Ekwador", "Erytrea", "Estonia", "Etiopia", "Filipiny", "Finlandia", 
+    "Francja", "Gabon", "Gambia", "Ghana", "Grecja", "Gruzja", "Gwatemala", "Gwinea", "Haiti", "Hiszpania", "Holandia", "Honduras", 
+    "Indie", "Indonezja", "Irak", "Iran", "Irlandia", "Islandia", "Izrael", "Jamajka", "Japonia", "Jemen", "Jordania", "Kambodża", 
+    "Kamerun", "Kanada", "Katar", "Kazachstan", "Kenia", "Kirgistan", "Kolumbia", "Kongo", "Korea Południowa", "Korea Północna", 
+    "Kostaryka", "Kuba", "Kuwejt", "Laos", "Liban", "Liberia", "Libia", "Litwa", "Luksemburg", "Łotwa", "Macedonia Północna", 
+    "Madagaskar", "Malezja", "Malta", "Maroko", "Meksyk", "Mołdawia", "Monako", "Mongolia", "Mozambik", "Namibia", "Nepal", 
+    "Niemcy", "Niger", "Nigeria", "Nikaragua", "Norwegia", "Nowa Zelandia", "Oman", "Pakistan", "Panama", "Paragwaj", "Peru", 
+    "Polska", "Portugalia", "Republika Południowej Afryki", "Rosja", "Rumunia", "Rwanda", "Salwador", "Senegal", "Serbia", 
+    "Singapur", "Słowacja", "Słowenia", "Somalia", "Sri Lanka", "Sudan", "Surinam", "Syria", "Szwajcaria", "Szwecja", "Tadżykistan", 
+    "Tajlandia", "Tajwan", "Tanzania", "Tunezja", "Turcja", "Turkmenistan", "Uganda", "Ukraina", "Urugwaj", "USA", "Uzbekistan", 
+    "Wenezuela", "Węgry", "Wielka Brytania", "Wietnam", "Włochy", "Wybrzeże Kości Słoniowej", "Zambia", "Zimbabwe", "ZEA"
+])
+
 COMMODITIES = sorted(["Gaz Ziemny", "Ropa Naftowa", "Węgiel Kamienny", "Uran", "Wodór", "Miedź", "Aluminium", "Żelazo", "Nikiel", "Cynk", "Złoto", "Srebro", "Platyna", "Lit", "Kobalt", "Metale Ziem Rzadkich", "Grafit", "Krzem", "Magnez", "Pszenica (Zboże)", "Kukurydza", "Rzepak", "Ryż", "Kawa", "Kauczuk"])
 
 # --- 3. Języki ---
@@ -168,35 +184,25 @@ else:
                     if score_match:
                         score_val = int(score_match.group(1))
                         
-                        # Ustalanie koloru CSS dla paska i typu komunikatu
+                        # Ustalanie koloru dla paska i tekstu
                         if score_val >= 9:
                             color_hex = "#2ecc71" # Jasnozielony
-                            msg_type = "success"
                             status_txt = "Optymalny"
                         elif score_val >= 7:
                             color_hex = "#3498db" # Niebieski
-                            msg_type = "info"
                             status_txt = "Stabilny"
                         elif score_val >= 4:
                             color_hex = "#f1c40f" # Żółty
-                            msg_type = "warning"
                             status_txt = "Umiarkowane ryzyko"
                         else:
                             color_hex = "#e74c3c" # Czerwony
-                            msg_type = "error"
                             status_txt = "Wysokie ryzyko"
 
-                        # Wstrzykiwanie koloru do CSS paska
+                        # Stylizacja paska i wyświetlenie czystego tekstu
                         st.markdown(f'<style>div[data-testid="stProgress"] > div > div > div > div {{ background-color: {color_hex} !important; }}</style>', unsafe_allow_html=True)
-                        
                         st.write(f"**{L['score_label']}**")
                         st.progress(score_val / 10)
-                        
-                        # Wyświetlanie komunikatu o statusie
-                        if msg_type == "success": st.success(f"Status: {status_txt} ({score_val}/10)")
-                        elif msg_type == "info": st.info(f"Status: {status_txt} ({score_val}/10)")
-                        elif msg_type == "warning": st.warning(f"Status: {status_txt} ({score_val}/10)")
-                        else: st.error(f"Status: {status_txt} ({score_val}/10)")
+                        st.markdown(f'<p style="color:{color_hex}; font-weight:bold; margin-top:-10px;">Status: {status_txt} ({score_val}/10)</p>', unsafe_allow_html=True)
 
                     st.markdown(f'<div class="report-card"><h3>{selected_country} | {target_item}</h3>{clean_report.replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
                 
