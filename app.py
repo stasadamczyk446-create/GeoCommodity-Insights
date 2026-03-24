@@ -8,35 +8,70 @@ import pandas as pd
 # --- 1. Konfiguracja Strony ---
 st.set_page_config(page_title="GeoCommodity Insights", layout="wide", page_icon="🌍")
 
+# CSS: Wdrożenie Dark Mode i poprawka dla logo (Filtr Invert)
 st.markdown("""
     <style>
+    /* 1. Globalny Ciemny Motyw dla całej strony */
+    .stApp {
+        background-color: #121212; /* Bardzo ciemny szary/czarny */
+        color: #e0e0e0; /* Jasnoszary tekst */
+    }
+
+    /* 2. Stylizacja karty raportu AI (Kontrastowe tło) */
     .report-card {
-        background-color: white;
+        background-color: #1e1e1e; /* Nieco jaśniejszy czarny dla karty */
         padding: 30px;
         border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        border: 1px solid #eee;
+        box-shadow: 0 4px 15px rgba(255,255,255,0.05); /* Delikatny, jasny cień */
+        border: 1px solid #333; /* Ciemna ramka */
         margin-top: 20px;
-        color: #1e1e1e;
+        color: #e0e0e0; /* Jasny tekst wewnątrz karty */
     }
+    
+    /* 3. Poprawka dla nagłówków w raporcie */
+    .report-card h2, .report-card h3 {
+        color: #007bff; /* Niebieski akcent dla nagłówków (jak w oryginale, ale jaśniejszy) */
+        border-bottom: 2px solid #333;
+        padding-bottom: 10px;
+    }
+
+    /* 4. KLUCZOWE: Poprawka dla Logo na ciemnym tle */
+    /* Nakładamy filtr, który odwraca kolory (biały->czarny, czarny->biały) */
+    /* i ustawia przezroczystość dla dawnego białego tła. */
+    .stImage img {
+        filter: invert(1) hue-rotate(180deg) brightness(1.2);
+        mix-blend-mode: lighten; /* Sprawia, że dawne białe tło znika */
+    }
+
+    /* 5. Stylizacja Paska Statusu */
     .status-container {
         text-align: center;
         margin-top: -10px;
         margin-bottom: 20px;
     }
     .status-text {
-        color: #555;
+        color: #aaa; /* Szary tekst sloganu */
         font-weight: 500;
         font-size: 1.0em;
     }
     .status-highlight {
-        color: #002d62;
+        color: #007bff; /* Jasnoniebieski status */
         font-weight: bold;
+    }
+
+    /* 6. Korekta dla elementów Streamlit w Dark Mode */
+    /* Upewniamy się, że teksty w sidebarze i labelach są jasne */
+    .st-emotion-cache-6qob1r, .st-emotion-cache-10trblm, .st-emotion-cache-16idsys {
+        color: #e0e0e0 !important;
+    }
+    /* Paski postępu i spinnery */
+    .stProgress > div > div > div > div {
+        background-color: #007bff;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. Baza Danych ---
+# --- 2. Baza Danych (Bez zmian) ---
 ALL_COUNTRIES = sorted([
     "Afganistan", "Albania", "Algieria", "Andora", "Angola", "Arabia Saudyjska", "Argentyna", "Armenia", "Australia", "Austria",
     "Azerbejdżan", "Bahamy", "Bahrajn", "Bangladesz", "Barbados", "Belgia", "Belize", "Benin", "Bhutan", "Białoruś", "Boliwia",
@@ -56,8 +91,9 @@ ALL_COUNTRIES = sorted([
 
 COMMODITIES = sorted(["Gaz Ziemny", "Ropa Naftowa", "Węgiel Kamienny", "Uran", "Wodór", "Miedź", "Aluminium", "Żelazo", "Nikiel", "Cynk", "Złoto", "Srebro", "Platyna", "Lit", "Kobalt", "Metale Ziem Rzadkich", "Grafit", "Krzem", "Magnez", "Pszenica (Zboże)", "Kukurydza", "Rzepak", "Ryż", "Kawa", "Kauczuk"])
 
+# Przykładowe dane do mapy rezerw złota
 gold_data = {
-    'Country': ['USA', 'Germany', 'Italy', 'France', 'Russia', 'China', 'Switzerland', 'Japan', 'India', 'Turkey', 'Netherlands', 'Poland', 'Saudi Arabia', 'Portugal', 'Kazakhstan', 'Uzbekistan', 'Brazil', 'UK', 'Spain', 'Austria', 'Australia'],
+    'Country': ['United States', 'Germany', 'Italy', 'France', 'Russia', 'China', 'Switzerland', 'Japan', 'India', 'Turkey', 'Netherlands', 'Poland', 'Saudi Arabia', 'Portugal', 'Kazakhstan', 'Uzbekistan', 'Brazil', 'United Kingdom', 'Spain', 'Austria', 'Australia'],
     'ISO_Code': ['USA', 'DEU', 'ITA', 'FRA', 'RUS', 'CHN', 'CHE', 'JPN', 'IND', 'TUR', 'NLD', 'POL', 'SAU', 'PRT', 'KAZ', 'UZB', 'BRA', 'GBR', 'ESP', 'AUT', 'AUS'],
     'Tons': [8133, 3352, 2451, 2436, 2332, 2264, 1040, 846, 822, 584, 612, 359, 323, 382, 309, 362, 129, 310, 281, 280, 79]
 }
@@ -129,19 +165,20 @@ with st.sidebar:
     st.markdown("---")
     model_version = st.selectbox("Model AI:", ["gpt-4o-mini", "gpt-4o"])
     
-    # KLUCZ API NA SAMYM DOLE
+    # KLUCZ API NA SAMYM DOLE (Bez zmian)
     api_key = st.text_input(L["api_label"], type="password")
 
-# --- 5. Logo (550px) ---
+# --- 5. Logo (550px) z poprawką CSS ---
 if os.path.exists("logo.png"):
     def get_base64_logo(file):
         with open(file, "rb") as f: return base64.b64encode(f.read()).decode()
     encoded_logo = get_base64_logo("logo.png")
+    # CSS automatycznie poprawi logo (Invert Filter)
     st.markdown(f"""<div style="display: flex; justify-content: center; padding-top: 25px;">
         <img src="data:image/png;base64,{encoded_logo}" width="550">
         </div>""", unsafe_allow_html=True)
 
-# --- ZINTEGROWANY STATUS I SLOGAN ---
+# --- ZINTEGROWANY STATUS I SLOGAN (Bez zmian w logice) ---
 status_placeholder = st.empty()
 status_placeholder.markdown(f"""
     <div class="status-container">
@@ -158,6 +195,7 @@ if map_selection == L["map_option_gold"]:
                         range_color=[0, 2500],
                         labels={'Tons':'Gold (Tons)'})
     fig.update_layout(geo=dict(showframe=False, projection_type='equirectangular'), margin={"r":0,"t":0,"l":0,"b":0})
+    # Wykresy plotly automatycznie dostosowują się do ciemnego motywu w nowym Streamlit
     st.plotly_chart(fig, use_container_width=True)
     st.markdown("*Source: World Gold Council Data (2024)*")
 else:
@@ -176,6 +214,7 @@ else:
         if not api_key: st.error("Podaj klucz API!")
         else:
             try:
+                # Zmiana statusu na górze (Kolor złoty dla kontrastu)
                 status_placeholder.markdown(f"""
                     <div class="status-container">
                         <p class="status-text">{L['slogan']} | <span class="status-highlight" style="color: #d4a017;">{L["status_work"]}</span></p>
@@ -195,8 +234,10 @@ else:
                         messages=[{"role": "system", "content": f"Ekspert geopolityki. Język: {L['code']}. Bez hashtagów."},
                                   {"role": "user", "content": p}])
                     
+                    # Wyświetlenie raportu w Dark Mode
                     st.markdown(f'<div class="report-card"><h2>{selected_country} | {target_item}</h2>{resp.choices[0].message.content.replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
                 
+                # Powrót do statusu bazowego
                 status_placeholder.markdown(f"""
                     <div class="status-container">
                         <p class="status-text">{L['slogan']} | <span class="status-highlight">{L["status_wait"]}</span></p>
