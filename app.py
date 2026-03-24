@@ -36,15 +36,14 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. Baza Danych Rezerw Złota (Rozszerzona) ---
-# Dane w tonach na podstawie raportów World Gold Council (2024)
+# --- 2. Baza Danych Rezerw Złota ---
 gold_data = {
     'Country': [
         'USA', 'Niemcy', 'Włochy', 'Francja', 'Rosja', 'Chiny', 'Szwajcaria', 'Japonia', 'Indie', 'Turcja', 
         'Holandia', 'Polska', 'Arabia Saudyjska', 'Portugalia', 'Kazachstan', 'Uzbekistan', 'Hiszpania', 
         'Austria', 'Tajlandia', 'Belgia', 'Algieria', 'Wenezuela', 'Filipiny', 'Brazylia', 'Singapur', 
         'Szwecja', 'RPA', 'Meksyk', 'Libia', 'Grecja', 'Korea Południowa', 'Rumunia', 'Egipt', 'Australia', 
-        'Kuwejt', 'Indonezja', 'Katar', 'Pakistan', 'Argentyna', 'Zjednoczone Emiraty Arabskie', 'Malezja',
+        'Kuwejt', 'Indonezja', 'Katar', 'Pakistan', 'Argentyna', 'ZEA', 'Malezja',
         'Ukraina', 'Jordania', 'Słowacja', 'Węgry', 'Bułgaria', 'Białoruś', 'Finlandia', 'Serbia', 'Peru'
     ],
     'ISO_Code': [
@@ -66,9 +65,22 @@ gold_data = {
 }
 df_gold = pd.DataFrame(gold_data)
 
-# --- Lista Państw i Surowców dla UI ---
-ALL_COUNTRIES = sorted(df_gold['Country'].tolist() + ["Wielka Brytania", "Kanada", "Norwegia", "Nigeria", "Chile"])
-COMMODITIES = sorted(["Gaz Ziemny", "Ropa Naftowa", "Węgiel Kamienny", "Uran", "Miedź", "Lit", "Złoto", "Srebro"])
+# --- Pełna Lista Państw ---
+ALL_COUNTRIES = sorted(df_gold['Country'].tolist() + [
+    "Wielka Brytania", "Kanada", "Norwegia", "Nigeria", "Chile", "Argentyna", "Azerbejdżan", 
+    "Belgia", "Czechy", "Dania", "Egipt", "Finlandia", "Grecja", "Hiszpania", "Holandia", 
+    "Irak", "Iran", "Izrael", "Katar", "Kolumbia", "Kuwejt", "Meksyk", "Nowa Zelandia", 
+    "Oman", "Pakistan", "Portugalia", "Rumunia", "Słowacja", "Szwajcaria", "Szwecja", 
+    "Tajwan", "Ukraina", "Wenezuela", "Węgry", "Wietnam", "Włochy"
+])
+
+# --- Pełna Lista Surowców (Przywrócona) ---
+COMMODITIES = sorted([
+    "Gaz Ziemny", "Ropa Naftowa", "Węgiel Kamienny", "Uran", "Wodór",
+    "Miedź", "Aluminium", "Żelazo", "Nikiel", "Cynk", "Złoto", "Srebro", "Platyna",
+    "Lit", "Kobalt", "Metale Ziem Rzadkich", "Grafit", "Krzem", "Magnez",
+    "Pszenica (Zboże)", "Kukurydza", "Rzepak", "Ryż", "Kawa", "Kauczuk"
+])
 
 # --- 3. Słownik Języków ---
 LANG = {
@@ -132,7 +144,7 @@ if map_selection == L["map_option_gold"]:
                         locations="ISO_Code", 
                         color="Tons", 
                         hover_name="Country",
-                        color_continuous_scale="Viridis", # Bardziej czytelna skala w jasnym motywie
+                        color_continuous_scale="Geyser", # Nowa, bardziej prestiżowa paleta kolorów
                         labels={'Tons':'Złoto (Tony)'})
     fig.update_layout(geo=dict(showframe=False, projection_type='natural earth'), 
                       margin={"r":0,"t":40,"l":0,"b":0})
@@ -155,7 +167,7 @@ else:
                 with st.spinner(L["loading"]):
                     prompt = f"Analiza {target_item} w {selected_country}. {analysis_mode}."
                     resp = client.chat.completions.create(model=model_version,
-                        messages=[{"role": "system", "content": f"Ekspert geopolityki. Język: {L['code']}."},
+                        messages=[{"role": "system", "content": f"Jesteś ekspertem geopolityki. Odpowiadasz w języku: {L['code']}."},
                                   {"role": "user", "content": prompt}])
                     st.markdown(f'<div class="report-card"><h2>{selected_country} | {target_item}</h2>{resp.choices[0].message.content.replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
                 status_placeholder.markdown(f'<div class="status-container"><p class="status-text">{L["slogan"]} | <span class="status-highlight">{L["status_wait"]}</span></p></div>', unsafe_allow_html=True)
