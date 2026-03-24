@@ -37,6 +37,10 @@ st.markdown("""
         color: #002d62;
         font-weight: bold;
     }
+    /* Dynamiczne kolory paska postępu */
+    .stProgress > div > div > div > div {
+        background-color: var(--p-color);
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -158,27 +162,41 @@ else:
                                   {"role": "user", "content": prompt}])
                     
                     full_response = resp.choices[0].message.content
-                    
-                    # Logika wyciągania punktacji
                     score_match = re.search(r"SCORE:\s*(\d+)", full_response)
                     clean_report = re.sub(r"SCORE:\s*\d+", "", full_response)
                     
                     if score_match:
                         score_val = int(score_match.group(1))
-                        # Wyświetlenie etykiety i numeru w jednej linii
-                        st.markdown(f"**{L['score_label']} {score_val}**")
                         
-                        # Kolorystyka paska zgodnie z Twoimi wytycznymi
+                        # Ustalanie koloru CSS dla paska i typu komunikatu
+                        if score_val >= 9:
+                            color_hex = "#2ecc71" # Jasnozielony
+                            msg_type = "success"
+                            status_txt = "Optymalny"
+                        elif score_val >= 7:
+                            color_hex = "#3498db" # Niebieski
+                            msg_type = "info"
+                            status_txt = "Stabilny"
+                        elif score_val >= 4:
+                            color_hex = "#f1c40f" # Żółty
+                            msg_type = "warning"
+                            status_txt = "Umiarkowane ryzyko"
+                        else:
+                            color_hex = "#e74c3c" # Czerwony
+                            msg_type = "error"
+                            status_txt = "Wysokie ryzyko"
+
+                        # Wstrzykiwanie koloru do CSS paska
+                        st.markdown(f'<style>div[data-testid="stProgress"] > div > div > div > div {{ background-color: {color_hex} !important; }}</style>', unsafe_allow_html=True)
+                        
+                        st.write(f"**{L['score_label']}**")
                         st.progress(score_val / 10)
                         
-                        if score_val >= 9:
-                            st.info(f"Status: Optymalny ({score_val}/10)") # Jasnozielony/turkusowy w Streamlit to info
-                        elif score_val >= 7:
-                            st.info(f"Status: Stabilny ({score_val}/10)") # Niebieski to info (standard)
-                        elif score_val >= 4:
-                            st.warning(f"Status: Umiarkowane ryzyko ({score_val}/10)") # Żółty
-                        else:
-                            st.error(f"Status: Wysokie ryzyko ({score_val}/10)") # Czerwony
+                        # Wyświetlanie komunikatu o statusie
+                        if msg_type == "success": st.success(f"Status: {status_txt} ({score_val}/10)")
+                        elif msg_type == "info": st.info(f"Status: {status_txt} ({score_val}/10)")
+                        elif msg_type == "warning": st.warning(f"Status: {status_txt} ({score_val}/10)")
+                        else: st.error(f"Status: {status_txt} ({score_val}/10)")
 
                     st.markdown(f'<div class="report-card"><h3>{selected_country} | {target_item}</h3>{clean_report.replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
                 
