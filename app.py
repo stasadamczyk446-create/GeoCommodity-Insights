@@ -36,79 +36,66 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. Baza Danych ---
-ALL_COUNTRIES = sorted([
-    "Afganistan", "Albania", "Algieria", "Andora", "Angola", "Arabia Saudyjska", "Argentyna", "Armenia", "Australia", "Austria",
-    "Azerbejdżan", "Bahamy", "Bahrajn", "Bangladesz", "Barbados", "Belgia", "Belize", "Benin", "Bhutan", "Białoruś", "Boliwia",
-    "Bośnia i Hercegowina", "Botswana", "Brazylia", "Brunei", "Bułgaria", "Burkina Faso", "Burundi", "Chile", "Chiny", "Chorwacja",
-    "Cypr", "Czad", "Czarnogóra", "Czechy", "Dania", "Egipt", "Ekwador", "Erytrea", "Estonia", "Etiopia", "Filipiny", "Finlandia", 
-    "Francja", "Gabon", "Gambia", "Ghana", "Grecja", "Gruzja", "Gwatemala", "Gwinea", "Haiti", "Hiszpania", "Holandia", "Honduras", 
-    "Indie", "Indonezja", "Irak", "Iran", "Irlandia", "Islandia", "Izrael", "Jamajka", "Japonia", "Jemen", "Jordania", "Kambodża", 
-    "Kamerun", "Kanada", "Katar", "Kazachstan", "Kenia", "Kirgistan", "Kolumbia", "Kongo", "Korea Południowa", "Korea Północna", 
-    "Kostaryka", "Kuba", "Kuwejt", "Laos", "Liban", "Liberia", "Libia", "Litwa", "Luksemburg", "Łotwa", "Macedonia Północna", 
-    "Madagaskar", "Malezja", "Malta", "Maroko", "Meksyk", "Mołdawia", "Monako", "Mongolia", "Mozambik", "Namibia", "Nepal", 
-    "Niemcy", "Niger", "Nigeria", "Nikaragua", "Norwegia", "Nowa Zelandia", "Oman", "Pakistan", "Panama", "Paragwaj", "Peru", 
-    "Polska", "Portugalia", "Republika Południowej Afryki", "Rosja", "Rumunia", "Rwanda", "Salwador", "Senegal", "Serbia", 
-    "Singapur", "Słowacja", "Słowenia", "Somalia", "Sri Lanka", "Sudan", "Surinam", "Syria", "Szwajcaria", "Szwecja", "Tadżykistan", 
-    "Tajlandia", "Tajwan", "Tanzania", "Tunezja", "Turcja", "Turkmenistan", "Uganda", "Ukraina", "Urugwaj", "USA", "Uzbekistan", 
-    "Wenezuela", "Węgry", "Wielka Brytania", "Wietnam", "Włochy", "Wybrzeże Kości Słoniowej", "Zambia", "Zimbabwe", "ZEA"
-])
-
-COMMODITIES = sorted(["Gaz Ziemny", "Ropa Naftowa", "Węgiel Kamienny", "Uran", "Wodór", "Miedź", "Aluminium", "Żelazo", "Nikiel", "Cynk", "Złoto", "Srebro", "Platyna", "Lit", "Kobalt", "Metale Ziem Rzadkich", "Grafit", "Krzem", "Magnez", "Pszenica (Zboże)", "Kukurydza", "Rzepak", "Ryż", "Kawa", "Kauczuk"])
-
+# --- 2. Baza Danych Rezerw Złota (Rozszerzona) ---
+# Dane w tonach na podstawie raportów World Gold Council (2024)
 gold_data = {
-    'Country': ['USA', 'Germany', 'Italy', 'France', 'Russia', 'China', 'Switzerland', 'Japan', 'India', 'Turkey', 'Netherlands', 'Poland', 'Saudi Arabia', 'Portugal', 'Kazakhstan', 'Uzbekistan', 'Brazil', 'UK', 'Spain', 'Austria', 'Australia'],
-    'ISO_Code': ['USA', 'DEU', 'ITA', 'FRA', 'RUS', 'CHN', 'CHE', 'JPN', 'IND', 'TUR', 'NLD', 'POL', 'SAU', 'PRT', 'KAZ', 'UZB', 'BRA', 'GBR', 'ESP', 'AUT', 'AUS'],
-    'Tons': [8133, 3352, 2451, 2436, 2332, 2264, 1040, 846, 822, 584, 612, 359, 323, 382, 309, 362, 129, 310, 281, 280, 79]
+    'Country': [
+        'USA', 'Niemcy', 'Włochy', 'Francja', 'Rosja', 'Chiny', 'Szwajcaria', 'Japonia', 'Indie', 'Turcja', 
+        'Holandia', 'Polska', 'Arabia Saudyjska', 'Portugalia', 'Kazachstan', 'Uzbekistan', 'Hiszpania', 
+        'Austria', 'Tajlandia', 'Belgia', 'Algieria', 'Wenezuela', 'Filipiny', 'Brazylia', 'Singapur', 
+        'Szwecja', 'RPA', 'Meksyk', 'Libia', 'Grecja', 'Korea Południowa', 'Rumunia', 'Egipt', 'Australia', 
+        'Kuwejt', 'Indonezja', 'Katar', 'Pakistan', 'Argentyna', 'Zjednoczone Emiraty Arabskie', 'Malezja',
+        'Ukraina', 'Jordania', 'Słowacja', 'Węgry', 'Bułgaria', 'Białoruś', 'Finlandia', 'Serbia', 'Peru'
+    ],
+    'ISO_Code': [
+        'USA', 'DEU', 'ITA', 'FRA', 'RUS', 'CHN', 'CHE', 'JPN', 'IND', 'TUR', 
+        'NLD', 'POL', 'SAU', 'PRT', 'KAZ', 'UZB', 'ESP', 
+        'AUT', 'THA', 'BEL', 'DZA', 'VEN', 'PHL', 'BRA', 'SGP', 
+        'SWE', 'ZAF', 'MEX', 'LBY', 'GRC', 'KOR', 'ROU', 'EGY', 'AUS', 
+        'KWT', 'IDN', 'QAT', 'PAK', 'ARG', 'ARE', 'MYS',
+        'UKR', 'JOR', 'SVK', 'HUN', 'BGR', 'BLR', 'FIN', 'SRB', 'PER'
+    ],
+    'Tons': [
+        8133, 3352, 2451, 2436, 2332, 2264, 1040, 846, 822, 584, 
+        612, 359, 323, 382, 309, 362, 281, 
+        280, 244, 227, 173, 161, 155, 129, 230, 
+        126, 125, 120, 116, 114, 104, 103, 126, 79, 
+        79, 78, 106, 64, 61, 74, 45,
+        27, 43, 31, 94, 40, 53, 49, 38, 34
+    ]
 }
 df_gold = pd.DataFrame(gold_data)
+
+# --- Lista Państw i Surowców dla UI ---
+ALL_COUNTRIES = sorted(df_gold['Country'].tolist() + ["Wielka Brytania", "Kanada", "Norwegia", "Nigeria", "Chile"])
+COMMODITIES = sorted(["Gaz Ziemny", "Ropa Naftowa", "Węgiel Kamienny", "Uran", "Miedź", "Lit", "Złoto", "Srebro"])
 
 # --- 3. Słownik Języków ---
 LANG = {
     "Polska 🇵🇱": {
-        "code": "PL",
-        "slogan": "Strategiczna Analityka wspierana przez AI",
-        "api_label": "Klucz API OpenAI",
-        "nav_analysis": "📂 ANALIZA TEKSTOWA",
-        "nav_maps": "🗺️ MODUŁ WIZUALNY",
-        "mode_label": "Wybierz tryb:",
-        "mode_res": "Surowce Strategiczne",
-        "mode_pol": "Polityka",
-        "mode_rel": "Analiza Relacji",
-        "map_option_off": "Wyłączony",
-        "map_option_gold": "Mapa Rezerw Złota",
-        "country_label": "📍 Wybierz Państwo:",
-        "country2_label": "🤝 Wybierz drugie Państwo:",
-        "res_label": "💎 Wybierz Surowiec:",
-        "pol_submode_label": "🔍 Obszar polityki:",
+        "code": "PL", "slogan": "Strategiczna Analityka wspierana przez AI",
+        "api_label": "Klucz API OpenAI", "nav_analysis": "📂 ANALIZA TEKSTOWA",
+        "nav_maps": "🗺️ MODUŁ WIZUALNY", "mode_label": "Wybierz tryb:",
+        "mode_res": "Surowce Strategiczne", "mode_pol": "Polityka", "mode_rel": "Analiza Relacji",
+        "map_option_off": "Wyłączony", "map_option_gold": "Mapa Rezerw Złota",
+        "country_label": "📍 Wybierz Państwo:", "country2_label": "🤝 Wybierz drugie Państwo:",
+        "res_label": "💎 Wybierz Surowiec:", "pol_submode_label": "🔍 Obszar polityki:",
         "pol_options": ["Partie Polityczne", "System Władzy", "Główne Osoby w Państwie"],
-        "btn_gen": "🚀 GENERUJ RAPORT",
-        "status_wait": "🤖 Oczekiwanie na instrukcje",
-        "status_work": "⏳ Generowanie raportu...",
-        "loading": "Trwa analiza...",
+        "btn_gen": "🚀 GENERUJ RAPORT", "status_wait": "🤖 Oczekiwanie na instrukcje",
+        "status_work": "⏳ Generowanie raportu...", "loading": "Trwa analiza...",
         "footer": "Projekt edukacyjny - Uniwersytet Warszawski"
     },
     "English 🇬🇧": {
-        "code": "EN",
-        "slogan": "AI-Powered Strategic Intelligence",
-        "api_label": "OpenAI API Key",
-        "nav_analysis": "📂 TEXTUAL ANALYSIS",
-        "nav_maps": "🗺️ VISUAL MODULE",
-        "mode_label": "Select mode:",
-        "mode_res": "Strategic Commodities",
-        "mode_pol": "Politics",
-        "mode_rel": "Relationship Analysis",
-        "map_option_off": "Disabled",
-        "map_option_gold": "Gold Reserves Map",
-        "country_label": "📍 Select Country:",
-        "country2_label": "🤝 Select second Country:",
-        "res_label": "💎 Select Commodity:",
-        "pol_submode_label": "🔍 Politics area:",
+        "code": "EN", "slogan": "AI-Powered Strategic Intelligence",
+        "api_label": "OpenAI API Key", "nav_analysis": "📂 TEXTUAL ANALYSIS",
+        "nav_maps": "🗺️ VISUAL MODULE", "mode_label": "Select mode:",
+        "mode_res": "Strategic Commodities", "mode_pol": "Politics", "mode_rel": "Relationship Analysis",
+        "map_option_off": "Disabled", "map_option_gold": "Gold Reserves Map",
+        "country_label": "📍 Select Country:", "country2_label": "🤝 Select second Country:",
+        "res_label": "💎 Select Commodity:", "pol_submode_label": "🔍 Politics area:",
         "pol_options": ["Political Parties", "Government System", "Key Figures"],
-        "btn_gen": "🚀 GENERATE REPORT",
-        "status_wait": "🤖 Ready & Waiting",
-        "status_work": "⏳ Generating report...",
-        "loading": "Analyzing...",
+        "btn_gen": "🚀 GENERATE REPORT", "status_wait": "🤖 Ready & Waiting",
+        "status_work": "⏳ Generating report...", "loading": "Analyzing...",
         "footer": "Educational Project - University of Warsaw"
     }
 }
@@ -117,22 +104,15 @@ LANG = {
 with st.sidebar:
     lang_display = st.selectbox("Language / Język", list(LANG.keys()))
     L = LANG[lang_display]
-    
     st.markdown("---")
-    st.markdown(f"### {L['nav_analysis']}")
     analysis_mode = st.radio(L["mode_label"], [L["mode_res"], L["mode_pol"], L["mode_rel"]])
-    
     st.markdown("---")
-    st.markdown(f"### {L['nav_maps']}")
     map_selection = st.selectbox(L["nav_maps"], [L["map_option_off"], L["map_option_gold"]])
-    
     st.markdown("---")
     model_version = st.selectbox("Model AI:", ["gpt-4o-mini", "gpt-4o"])
-    
-    # KLUCZ API NA SAMYM DOLE
     api_key = st.text_input(L["api_label"], type="password")
 
-# --- 5. Logo (550px) ---
+# --- 5. Logo ---
 if os.path.exists("logo.png"):
     def get_base64_logo(file):
         with open(file, "rb") as f: return base64.b64encode(f.read()).decode()
@@ -141,68 +121,44 @@ if os.path.exists("logo.png"):
         <img src="data:image/png;base64,{encoded_logo}" width="550">
         </div>""", unsafe_allow_html=True)
 
-# --- ZINTEGROWANY STATUS I SLOGAN ---
 status_placeholder = st.empty()
-status_placeholder.markdown(f"""
-    <div class="status-container">
-        <p class="status-text">{L['slogan']} | <span class="status-highlight">{L["status_wait"]}</span></p>
-    </div>
-    """, unsafe_allow_html=True)
+status_placeholder.markdown(f'<div class="status-container"><p class="status-text">{L["slogan"]} | <span class="status-highlight">{L["status_wait"]}</span></p></div>', unsafe_allow_html=True)
 st.markdown("---")
 
 # --- 6. Interfejs Główny ---
 if map_selection == L["map_option_gold"]:
-    st.subheader(f"🗺️ {L['map_option_gold']}")
-    fig = px.choropleth(df_gold, locations="ISO_Code", color="Tons", hover_name="Country",
-                        color_continuous_scale=px.colors.diverging.RdYlGn,
-                        range_color=[0, 2500],
-                        labels={'Tons':'Gold (Tons)'})
-    fig.update_layout(geo=dict(showframe=False, projection_type='equirectangular'), margin={"r":0,"t":0,"l":0,"b":0})
+    st.subheader(f"🗺️ {L['map_option_gold']} (Ton)")
+    fig = px.choropleth(df_gold, 
+                        locations="ISO_Code", 
+                        color="Tons", 
+                        hover_name="Country",
+                        color_continuous_scale="Viridis", # Bardziej czytelna skala w jasnym motywie
+                        labels={'Tons':'Złoto (Tony)'})
+    fig.update_layout(geo=dict(showframe=False, projection_type='natural earth'), 
+                      margin={"r":0,"t":40,"l":0,"b":0})
     st.plotly_chart(fig, use_container_width=True)
-    st.markdown("*Source: World Gold Council Data (2024)*")
+    st.info("Mapa pokazuje rezerwy dla 50 największych posiadaczy złota na świecie.")
 else:
     col1, col2 = st.columns(2)
-    with col1:
-        selected_country = st.selectbox(L["country_label"], ALL_COUNTRIES)
+    with col1: selected_country = st.selectbox(L["country_label"], ALL_COUNTRIES)
     with col2:
-        if analysis_mode == L["mode_res"]:
-            target_item = st.selectbox(L["res_label"], COMMODITIES)
-        elif analysis_mode == L["mode_pol"]:
-            target_item = st.selectbox(L["pol_submode_label"], L["pol_options"])
-        else:
-            target_item = st.selectbox(L["country2_label"], ALL_COUNTRIES, index=1)
+        if analysis_mode == L["mode_res"]: target_item = st.selectbox(L["res_label"], COMMODITIES)
+        elif analysis_mode == L["mode_pol"]: target_item = st.selectbox(L["pol_submode_label"], L["pol_options"])
+        else: target_item = st.selectbox(L["country2_label"], ALL_COUNTRIES, index=1)
 
     if st.button(L["btn_gen"], use_container_width=True):
         if not api_key: st.error("Podaj klucz API!")
         else:
             try:
-                status_placeholder.markdown(f"""
-                    <div class="status-container">
-                        <p class="status-text">{L['slogan']} | <span class="status-highlight" style="color: #d4a017;">{L["status_work"]}</span></p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                
+                status_placeholder.markdown(f'<div class="status-container"><p class="status-text">{L["slogan"]} | <span class="status-highlight" style="color: #d4a017;">{L["status_work"]}</span></p></div>', unsafe_allow_html=True)
                 client = OpenAI(api_key=api_key)
                 with st.spinner(L["loading"]):
-                    if analysis_mode == L["mode_res"]:
-                        p = f"Analiza {target_item} w {selected_country}. Strategia i gospodarka."
-                    elif analysis_mode == L["mode_pol"]:
-                        p = f"Analiza {target_item} w {selected_country}. Skup się tylko na tym konkretnym obszarze."
-                    else:
-                        p = f"Relacje {selected_country} - {target_item}. Dyplomacja i gospodarka."
-                    
+                    prompt = f"Analiza {target_item} w {selected_country}. {analysis_mode}."
                     resp = client.chat.completions.create(model=model_version,
-                        messages=[{"role": "system", "content": f"Ekspert geopolityki. Język: {L['code']}. Bez hashtagów."},
-                                  {"role": "user", "content": p}])
-                    
+                        messages=[{"role": "system", "content": f"Ekspert geopolityki. Język: {L['code']}."},
+                                  {"role": "user", "content": prompt}])
                     st.markdown(f'<div class="report-card"><h2>{selected_country} | {target_item}</h2>{resp.choices[0].message.content.replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
-                
-                status_placeholder.markdown(f"""
-                    <div class="status-container">
-                        <p class="status-text">{L['slogan']} | <span class="status-highlight">{L["status_wait"]}</span></p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                
+                status_placeholder.markdown(f'<div class="status-container"><p class="status-text">{L["slogan"]} | <span class="status-highlight">{L["status_wait"]}</span></p></div>', unsafe_allow_html=True)
             except Exception as e: st.error(f"Błąd: {e}")
 
 st.markdown("---")
