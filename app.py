@@ -55,9 +55,22 @@ df_gold['Log_Tons'] = np.log10(df_gold['Tons'])
 
 # --- 3. Baza Danych Zagrożeń Globalnych ---
 threat_data = {
-    'Country': ['Ukraina', 'Rosja', 'Izrael', 'Palestyna', 'Syria', 'Jemen', 'Tajwan', 'Korea Północna', 'Iran', 'Afganistan', 'Somalia', 'Mali', 'Burkina Faso', 'Niger', 'DR Konga', 'Wenezuela', 'Argentyna', 'Turcja', 'Egipt', 'Pakistan', 'Liban', 'Meksyk', 'Mjanma'],
-    'ISO_Code': ['UKR', 'RUS', 'ISR', 'PSE', 'SYR', 'YEM', 'TWN', 'PRK', 'IRN', 'AFG', 'SOM', 'MLI', 'BFA', 'NER', 'COD', 'VEN', 'ARG', 'TUR', 'EGY', 'PAK', 'LBN', 'MEX', 'MMR'],
-    'Kategoria': ['Wojna', 'Wojna', 'Wojna', 'Wojna', 'Wojna', 'Wojna', 'Niestabilność Polityczna', 'Niestabilność Polityczna', 'Niestabilność Polityczna', 'Terroryzm', 'Terroryzm', 'Terroryzm', 'Terroryzm', 'Terroryzm', 'Terroryzm', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Konflikt zbrojny', 'Konflikt zbrojny']
+    'Country': [
+        'Ukraina', 'Rosja', 'Izrael', 'Palestyna', 'Syria', 'Jemen', 'Tajwan', 'Korea Północna', 'Iran', 
+        'Afganistan', 'Somalia', 'Mali', 'Burkina Faso', 'Niger', 'DR Konga', 'Wenezuela', 'Argentyna', 
+        'Turcja', 'Egipt', 'Pakistan', 'Liban', 'Meksyk', 'Mjanma', 'Irak', 'Gruzja', 'Nigeria', 'Kuba'
+    ],
+    'ISO_Code': [
+        'UKR', 'RUS', 'ISR', 'PSE', 'SYR', 'YEM', 'TWN', 'PRK', 'IRN', 
+        'AFG', 'SOM', 'MLI', 'BFA', 'NER', 'COD', 'VEN', 'ARG', 
+        'TUR', 'EGY', 'PAK', 'LBN', 'MEX', 'MMR', 'IRQ', 'GEO', 'NGA', 'CUB'
+    ],
+    'Kategoria': [
+        'Wojna', 'Wojna', 'Wojna', 'Wojna', 'Wojna', 'Wojna', 'Niestabilność Polityczna', 'Niestabilność Polityczna', 'Niestabilność Polityczna', 
+        'Terroryzm', 'Terroryzm', 'Terroryzm', 'Terroryzm', 'Terroryzm', 'Terroryzm', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 
+        'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Konflikt zbrojny', 'Konflikt zbrojny', 
+        'Niestabilność Polityczna', 'Niestabilność Polityczna', 'Terroryzm', 'Kryzys Gospodarczy'
+    ]
 }
 df_threats = pd.DataFrame(threat_data)
 
