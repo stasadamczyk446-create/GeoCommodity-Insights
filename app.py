@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import streamlit as st
 from openai import OpenAI
 import os
@@ -20,6 +21,7 @@ st.markdown("""
         border: 1px solid #eee;
         margin-top: 20px;
         color: #1e1e1e;
+        line-height: 1.6;
     }
     .status-container {
         text-align: center;
@@ -83,10 +85,10 @@ LANG = {
         "country_label": "📍 Wybierz Państwo:", "country2_label": "🤝 Wybierz drugie Państwo:",
         "res_label": "💎 Wybierz Surowiec:", "pol_submode_label": "🔍 Obszar polityki:",
         "pol_options": ["Partie Polityczne", "System Władzy", "Główne Osoby w Państwie"],
-        "btn_gen": "🚀 GENERUJ RAPORT", "status_wait": "🤖 Oczekiwanie na instrukcje",
-        "status_work": "⏳ Generowanie raportu...", "loading": "Trwa analiza...",
+        "btn_gen": "🚀 GENERUJ RAPORT", "status_wait": "Oczekiwanie na instrukcje",
+        "status_work": "Generowanie raportu...", "loading": "Trwa analiza...",
         "footer": "Projekt edukacyjny - Uniwersytet Warszawski",
-        "score_label": "🛡️ Wskaźnik Bezpieczeństwa Strategicznego (1-10):"
+        "score_label": "Wskaźnik Bezpieczeństwa Strategicznego (1-10):"
     },
     "English 🇬🇧": {
         "code": "EN", "slogan": "AI-Powered Strategic Intelligence",
@@ -97,10 +99,10 @@ LANG = {
         "country_label": "📍 Select Country:", "country2_label": "🤝 Select second Country:",
         "res_label": "💎 Select Commodity:", "pol_submode_label": "🔍 Politics area:",
         "pol_options": ["Political Parties", "Government System", "Key Figures"],
-        "btn_gen": "🚀 GENERATE REPORT", "status_wait": "🤖 Ready & Waiting",
-        "status_work": "⏳ Generating report...", "loading": "Analyzing...",
+        "btn_gen": "🚀 GENERATE REPORT", "status_wait": "Ready & Waiting",
+        "status_work": "Generating report...", "loading": "Analyzing...",
         "footer": "Educational Project - University of Warsaw",
-        "score_label": "🛡️ Strategic Security Score (1-10):"
+        "score_label": "Strategic Security Score (1-10):"
     }
 }
 
@@ -129,7 +131,7 @@ st.markdown("---")
 
 # --- 6. Interfejs Główny ---
 if map_selection == L["map_option_gold"]:
-    st.subheader(f"🗺️ {L['map_option_gold']} (Ton)")
+    st.subheader(f"{L['map_option_gold']} (Ton)")
     fig = px.choropleth(df_gold, locations="ISO_Code", color="Log_Tons", hover_name="Country",
                         hover_data={"Log_Tons": False, "Tons": True},
                         color_continuous_scale="Spectral_r", labels={'Log_Tons':'Skala Potęgi', 'Tons': 'Tony'})
@@ -150,31 +152,26 @@ else:
                 status_placeholder.markdown(f'<div class="status-container"><p class="status-text">{L["slogan"]} | <span class="status-highlight" style="color: #d4a017;">{L["status_work"]}</span></p></div>', unsafe_allow_html=True)
                 client = OpenAI(api_key=api_key)
                 with st.spinner(L["loading"]):
-                    # Rozbudowany prompt z prośbą o ocenę liczbową
-                    prompt = f"""Analiza {target_item} w {selected_country}. {analysis_mode}. 
-                    Na samym końcu raportu, w nowej linii, napisz TYLKO frazę: 'SCORE: X', gdzie X to Twoja ocena bezpieczeństwa strategicznego od 1 do 10. Bez hashtagów."""
-                    
+                    prompt = f"Analiza {target_item} w {selected_country}. {analysis_mode}. Na samym końcu raportu napisz tylko: SCORE: X, gdzie X to liczba 1-10 określająca bezpieczeństwo strategiczne."
                     resp = client.chat.completions.create(model=model_version,
-                        messages=[{"role": "system", "content": f"Jesteś ekspertem geopolityki. Odpowiadasz w języku: {L['code']}."},
+                        messages=[{"role": "system", "content": f"Ekspert geopolityki. Język: {L['code']}."},
                                   {"role": "user", "content": prompt}])
                     
                     full_response = resp.choices[0].message.content
                     
-                    # Logika wyciągania punktacji (RegEx)
+                    # Logika wyciągania punktacji
                     score_match = re.search(r"SCORE:\s*(\d+)", full_response)
-                    clean_report = re.sub(r"SCORE:\s*\d+", "", full_response) # Usuwamy techniczny zapis z tekstu raportu
+                    clean_report = re.sub(r"SCORE:\s*\d+", "", full_response)
                     
-                    # Wyświetlenie Paska Bezpieczeństwa (jeśli znaleziono ocenę)
                     if score_match:
                         score_val = int(score_match.group(1))
                         st.write(L["score_label"])
-                        # Kolor paska zależy od wyniku
                         st.progress(score_val / 10)
-                        if score_val >= 8: st.success(f"Wynik: {score_val}/10 - Wysoka stabilność")
-                        elif score_val >= 5: st.warning(f"Wynik: {score_val}/10 - Umiarkowane ryzyko")
-                        else: st.error(f"Wynik: {score_val}/10 - Wysokie ryzyko strategiczne")
+                        if score_val >= 8: st.success(f"Wynik: {score_val}/10")
+                        elif score_val >= 5: st.warning(f"Wynik: {score_val}/10")
+                        else: st.error(f"Wynik: {score_val}/10")
 
-                    st.markdown(f'<div class="report-card"><h2>{selected_country} | {target_item}</h2>{clean_report.replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="report-card"><h3>{selected_country} | {target_item}</h3>{clean_report.replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
                 
                 status_placeholder.markdown(f'<div class="status-container"><p class="status-text">{L["slogan"]} | <span class="status-highlight">{L["status_wait"]}</span></p></div>', unsafe_allow_html=True)
             except Exception as e: st.error(f"Błąd: {e}")
