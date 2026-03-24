@@ -74,7 +74,6 @@ gold_data = {
 df_gold = pd.DataFrame(gold_data)
 df_gold['Log_Tons'] = np.log10(df_gold['Tons'])
 
-# --- Pełna Lista Państw (PRZYWRÓCONA) ---
 ALL_COUNTRIES = sorted([
     "Afganistan", "Albania", "Algieria", "Andora", "Angola", "Arabia Saudyjska", "Argentyna", "Armenia", "Australia", "Austria",
     "Azerbejdżan", "Bahamy", "Bahrajn", "Bangladesz", "Barbados", "Belgia", "Belize", "Benin", "Bhutan", "Białoruś", "Boliwia",
@@ -172,33 +171,28 @@ else:
                 status_placeholder.markdown(f'<div class="status-container"><p class="status-text">{L["slogan"]} | <span class="status-highlight" style="color: #d4a017;">{L["status_work"]}</span></p></div>', unsafe_allow_html=True)
                 client = OpenAI(api_key=api_key)
                 with st.spinner(L["loading"]):
-                    prompt = f"Analiza {target_item} w {selected_country}. {analysis_mode}. Na samym końcu raportu napisz tylko: SCORE: X, gdzie X to liczba 1-10 określająca bezpieczeństwo strategiczne."
+                    # Zaktualizowany prompt wymuszający brak hasztagów i użycie dwukropków
+                    prompt = f"Analiza {target_item} w {selected_country}. {analysis_mode}. Nie używaj żadnych hasztagów (#). Nagłówki sekcji zapisuj jako pogrubiony tekst zakończony dwukropkiem (np. **Tytuł sekcji:**). Na samym końcu napisz tylko: SCORE: X (gdzie X to liczba 1-10)."
+                    
                     resp = client.chat.completions.create(model=model_version,
                         messages=[{"role": "system", "content": f"Ekspert geopolityki. Język: {L['code']}."},
                                   {"role": "user", "content": prompt}])
                     
                     full_response = resp.choices[0].message.content
-                    score_match = re.search(r"SCORE:\s*(\d+)", full_response)
-                    clean_report = re.sub(r"SCORE:\s*\d+", "", full_response)
+                    
+                    # Logika usuwania hasztagów i zamiany na dwukropki w razie gdyby AI zapomniało
+                    processed_text = re.sub(r'^#+\s*(.*)', r'**\1:**', full_response, flags=re.MULTILINE)
+                    
+                    score_match = re.search(r"SCORE:\s*(\d+)", processed_text)
+                    clean_report = re.sub(r"SCORE:\s*\d+", "", processed_text)
                     
                     if score_match:
                         score_val = int(score_match.group(1))
-                        
-                        # Ustalanie koloru dla paska i tekstu
-                        if score_val >= 9:
-                            color_hex = "#2ecc71" # Jasnozielony
-                            status_txt = "Optymalny"
-                        elif score_val >= 7:
-                            color_hex = "#3498db" # Niebieski
-                            status_txt = "Stabilny"
-                        elif score_val >= 4:
-                            color_hex = "#f1c40f" # Żółty
-                            status_txt = "Umiarkowane ryzyko"
-                        else:
-                            color_hex = "#e74c3c" # Czerwony
-                            status_txt = "Wysokie ryzyko"
+                        if score_val >= 9: color_hex = "#2ecc71"; status_txt = "Optymalny"
+                        elif score_val >= 7: color_hex = "#3498db"; status_txt = "Stabilny"
+                        elif score_val >= 4: color_hex = "#f1c40f"; status_txt = "Umiarkowane ryzyko"
+                        else: color_hex = "#e74c3c"; status_txt = "Wysokie ryzyko"
 
-                        # Stylizacja paska i wyświetlenie czystego tekstu
                         st.markdown(f'<style>div[data-testid="stProgress"] > div > div > div > div {{ background-color: {color_hex} !important; }}</style>', unsafe_allow_html=True)
                         st.write(f"**{L['score_label']}**")
                         st.progress(score_val / 10)
