@@ -44,75 +44,48 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. Baza Danych Rezerw Złota (Wizualizacja 1) ---
+# --- 2. Baza Danych Rezerw Złota ---
 gold_data = {
-    'Country': [
-        'USA', 'Niemcy', 'Włochy', 'Francja', 'Rosja', 'Chiny', 'Szwajcaria', 'Japonia', 'Indie', 'Turcja', 
-        'Holandia', 'Polska', 'Arabia Saudyjska', 'Portugalia', 'Kazachstan', 'Uzbekistan', 'Hiszpania', 
-        'Austria', 'Tajlandia', 'Belgia', 'Algieria', 'Wenezuela', 'Filipiny', 'Brazylia', 'Singapur', 
-        'Szwecja', 'RPA', 'Meksyk', 'Libia', 'Grecja', 'Korea Południowa', 'Rumunia', 'Egipt', 'Australia', 
-        'Kuwejt', 'Indonezja', 'Katar', 'Pakistan', 'Argentyna', 'ZEA', 'Malezja',
-        'Ukraina', 'Jordania', 'Słowacja', 'Węgry', 'Bułgaria', 'Białoruś', 'Finlandia', 'Serbia', 'Peru'
-    ],
-    'ISO_Code': [
-        'USA', 'DEU', 'ITA', 'FRA', 'RUS', 'CHN', 'CHE', 'JPN', 'IND', 'TUR', 
-        'NLD', 'POL', 'SAU', 'PRT', 'KAZ', 'UZB', 'ESP', 
-        'AUT', 'THA', 'BEL', 'DZA', 'VEN', 'PHL', 'BRA', 'SGP', 
-        'SWE', 'ZAF', 'MEX', 'LBY', 'GRC', 'KOR', 'ROU', 'EGY', 'AUS', 
-        'KWT', 'IDN', 'QAT', 'PAK', 'ARG', 'ARE', 'MYS',
-        'UKR', 'JOR', 'SVK', 'HUN', 'BGR', 'BLR', 'FIN', 'SRB', 'PER'
-    ],
-    'Tons': [
-        8133, 3352, 2451, 2436, 2332, 2264, 1040, 846, 822, 584, 
-        612, 359, 323, 382, 309, 362, 281, 
-        280, 244, 227, 173, 161, 155, 129, 230, 
-        126, 125, 120, 116, 114, 104, 103, 126, 79, 
-        79, 78, 106, 64, 61, 74, 45,
-        27, 43, 31, 94, 40, 53, 49, 38, 34
-    ]
+    'Country': ['USA', 'Niemcy', 'Włochy', 'Francja', 'Rosja', 'Chiny', 'Szwajcaria', 'Japonia', 'Indie', 'Turcja', 'Holandia', 'Polska', 'Arabia Saudyjska', 'Portugalia', 'Kazachstan', 'Uzbekistan', 'Hiszpania', 'Austria', 'Tajlandia', 'Belgia', 'Algieria', 'Wenezuela', 'Filipiny', 'Brazylia', 'Singapur', 'Szwecja', 'RPA', 'Meksyk', 'Libia', 'Grecja', 'Korea Południowa', 'Rumunia', 'Egipt', 'Australia', 'Kuwejt', 'Indonezja', 'Katar', 'Pakistan', 'Argentyna', 'ZEA', 'Malezja', 'Ukraina', 'Jordania', 'Słowacja', 'Węgry', 'Bułgaria', 'Białoruś', 'Finlandia', 'Serbia', 'Peru'],
+    'ISO_Code': ['USA', 'DEU', 'ITA', 'FRA', 'RUS', 'CHN', 'CHE', 'JPN', 'IND', 'TUR', 'NLD', 'POL', 'SAU', 'PRT', 'KAZ', 'UZB', 'ESP', 'AUT', 'THA', 'BEL', 'DZA', 'VEN', 'PHL', 'BRA', 'SGP', 'SWE', 'ZAF', 'MEX', 'LBY', 'GRC', 'KOR', 'ROU', 'EGY', 'AUS', 'KWT', 'IDN', 'QAT', 'PAK', 'ARG', 'ARE', 'MYS', 'UKR', 'JOR', 'SVK', 'HUN', 'BGR', 'BLR', 'FIN', 'SRB', 'PER'],
+    'Tons': [8133, 3352, 2451, 2436, 2332, 2264, 1040, 846, 822, 584, 612, 359, 323, 382, 309, 362, 281, 280, 244, 227, 173, 161, 155, 129, 230, 126, 125, 120, 116, 114, 104, 103, 126, 79, 79, 78, 106, 64, 61, 74, 45, 27, 43, 31, 94, 40, 53, 49, 38, 34]
 }
 df_gold = pd.DataFrame(gold_data)
 df_gold['Log_Tons'] = np.log10(df_gold['Tons'])
 
-# --- 3. Baza Danych Zagrożeń Globalnych (NOWY MODUŁ WIZUALNY) ---
-# Kategorie: 🔴 Wojna/Konflikt, 🟠 Terroryzm/Niestabilność, 🟤 Kryzys Gospodarczy
+# --- 3. Baza Danych Zagrożeń Globalnych ---
 threat_data = {
-    'Country': [
-        'Ukraina', 'Rosja', 'Izrael', 'Palestyna (Gaza)', 'Syria', 'Jemen', 'Tajwan', 'Korea Północna', 'Iran', # Wojna/Niestabilność
-        'Afganistan', 'Somalia', 'Mali', 'Burkina Faso', 'Niger', 'Demokratyczna Republika Konga', # Terroryzm/Niestabilność
-        'Wenezuela', 'Argentyna', 'Turcja', 'Egipt', 'Pakistan', 'Liban' # Kryzys Gospodarczy
-    ],
-    'ISO_Code': [
-        'UKR', 'RUS', 'ISR', 'PSE', 'SYR', 'YEM', 'TWN', 'PRK', 'IRN',
-        'AFG', 'SOM', 'MLI', 'BFA', 'NER', 'COD',
-        'VEN', 'ARG', 'TUR', 'EGY', 'PAK', 'LBN'
-    ],
-    'Kategoria': [
-        'Wojna / Konflikt Zbrojny', 'Wojna / Konflikt Zbrojny', 'Wojna / Konflikt Zbrojny', 'Wojna / Konflikt Zbrojny', 'Wojna / Konflikt Zbrojny', 'Wojna / Konflikt Zbrojny', 'Niestabilność Geopolityczna (Wysokie Ryzyko)', 'Niestabilność Geopolityczna (Wysokie Ryzyko)', 'Sankcje / Niestabilność Regionalna',
-        'Terroryzm / Niestabilność Wewnętrzna', 'Terroryzm / Konflikt Wewnętrzny', 'Terroryzm / Niestabilność Wewnętrzna', 'Terroryzm / Niestabilność Wewnętrzna', 'Terroryzm / Niestabilność Wewnętrzna', 'Konflikt Wewnętrzny / Niestabilność',
-        'Hiperinflacja / Kryzys Gospodarczy', 'Hiperinflacja / Kryzys Gospodarczy', 'Wysoka Inflacja / Niestabilność Walutowa', 'Kryzys Walutowy / Zadłużenie', 'Kryzys Zadłużeniowy / Niestabilność', 'Kryzys Gospodarczy / Niestabilność Finansowa'
-    ],
-    'Threat_Level': [10, 10, 10, 10, 9, 9, 8, 8, 8, 7, 7, 7, 7, 7, 7, 6, 6, 5, 5, 5, 6] # Skala 1-10
+    'Country': ['Ukraina', 'Rosja', 'Izrael', 'Palestyna', 'Syria', 'Jemen', 'Tajwan', 'Korea Północna', 'Iran', 'Afganistan', 'Somalia', 'Mali', 'Burkina Faso', 'Niger', 'DR Konga', 'Wenezuela', 'Argentyna', 'Turcja', 'Egipt', 'Pakistan', 'Liban'],
+    'ISO_Code': ['UKR', 'RUS', 'ISR', 'PSE', 'SYR', 'YEM', 'TWN', 'PRK', 'IRN', 'AFG', 'SOM', 'MLI', 'BFA', 'NER', 'COD', 'VEN', 'ARG', 'TUR', 'EGY', 'PAK', 'LBN'],
+    'Kategoria': ['Wojna', 'Wojna', 'Wojna', 'Wojna', 'Wojna', 'Wojna', 'Niestabilność Polityczna', 'Niestabilność Polityczna', 'Niestabilność Polityczna', 'Terroryzm', 'Terroryzm', 'Terroryzm', 'Terroryzm', 'Terroryzm', 'Terroryzm', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy', 'Kryzys Gospodarczy']
 }
 df_threats = pd.DataFrame(threat_data)
 
-# --- Mapa Kolorów dla Zagrożeń ---
 color_map_threats = {
-    'Wojna / Konflikt Zbrojny': '#e74c3c', # Czerwony
-    'Niestabilność Geopolityczna (Wysokie Ryzyko)': '#e67e22', # Pomarańczowy
-    'Sankcje / Niestabilność Regionalna': '#f39c12', # Żółty/Pomarańczowy
-    'Terroryzm / Niestabilność Wewnętrzna': '#d35400', # Ciemny Pomarańczowy
-    'Terroryzm / Konflikt Wewnętrzny': '#d35400',
-    'Konflikt Wewnętrzny / Niestabilność': '#e67e22',
-    'Hiperinflacja / Kryzys Gospodarczy': '#8e44ad', # Fioletowy/Brazowy
-    'Wysoka Inflacja / Niestabilność Walutowa': '#9b59b6',
-    'Kryzys Walutowy / Zadłużenie': '#9b59b6',
-    'Kryzys Zadłużeniowy / Niestabilność': '#9b59b6',
-    'Kryzys Gospodarczy / Niestabilność Finansowa': '#8e44ad'
+    'Wojna': '#e74c3c',
+    'Niestabilność Polityczna': '#e67e22',
+    'Terroryzm': '#d35400',
+    'Kryzys Gospodarczy': '#8e44ad'
 }
 
-# --- Listy dla UI ---
-ALL_COUNTRIES = sorted(df_gold['Country'].tolist() + ["Wielka Brytania", "Kanada", "Norwegia", "Nigeria", "Chile"])
+# --- Pełna Lista Państw (Przywrócona do wszystkich kategorii) ---
+ALL_COUNTRIES = sorted([
+    "Afganistan", "Albania", "Algieria", "Andora", "Angola", "Arabia Saudyjska", "Argentyna", "Armenia", "Australia", "Austria",
+    "Azerbejdżan", "Bahamy", "Bahrajn", "Bangladesz", "Barbados", "Belgia", "Belize", "Benin", "Bhutan", "Białoruś", "Boliwia",
+    "Bośnia i Hercegowina", "Botswana", "Brazylia", "Brunei", "Bułgaria", "Burkina Faso", "Burundi", "Chile", "Chiny", "Chorwacja",
+    "Cypr", "Czad", "Czarnogóra", "Czechy", "Dania", "Egipt", "Ekwador", "Erytrea", "Estonia", "Etiopia", "Filipiny", "Finlandia", 
+    "Francja", "Gabon", "Gambia", "Ghana", "Grecja", "Gruzja", "Gwatemala", "Gwinea", "Haiti", "Hiszpania", "Holandia", "Honduras", 
+    "Indie", "Indonezja", "Irak", "Iran", "Irlandia", "Islandia", "Izrael", "Jamajka", "Japonia", "Jemen", "Jordania", "Kambodża", 
+    "Kamerun", "Kanada", "Katar", "Kazachstan", "Kenia", "Kirgistan", "Kolumbia", "Kongo", "Korea Południowa", "Korea Północna", 
+    "Kostaryka", "Kuba", "Kuwejt", "Laos", "Liban", "Liberia", "Libia", "Litwa", "Luksemburg", "Łotwa", "Macedonia Północna", 
+    "Madagaskar", "Malezja", "Malta", "Maroko", "Meksyk", "Mołdawia", "Monako", "Mongolia", "Mozambik", "Namibia", "Nepal", 
+    "Niemcy", "Niger", "Nigeria", "Nikaragua", "Norwegia", "Nowa Zelandia", "Oman", "Pakistan", "Panama", "Paragwaj", "Peru", 
+    "Polska", "Portugalia", "Republika Południowej Afryki", "Rosja", "Rumunia", "Rwanda", "Salwador", "Senegal", "Serbia", 
+    "Singapur", "Słowacja", "Słowenia", "Somalia", "Sri Lanka", "Sudan", "Surinam", "Syria", "Szwajcaria", "Szwecja", "Tadżykistan", 
+    "Tajlandia", "Tajwan", "Tanzania", "Tunezja", "Turcja", "Turkmenistan", "Uganda", "Ukraina", "Urugwaj", "USA", "Uzbekistan", 
+    "Wenezuela", "Węgry", "Wielka Brytania", "Wietnam", "Włochy", "Wybrzeże Kości Słoniowej", "Zambia", "Zimbabwe", "ZEA"
+])
+
 COMMODITIES = sorted(["Gaz Ziemny", "Ropa Naftowa", "Węgiel Kamienny", "Uran", "Wodór", "Miedź", "Aluminium", "Żelazo", "Nikiel", "Cynk", "Złoto", "Srebro", "Platyna", "Lit", "Kobalt", "Metale Ziem Rzadkich", "Grafit", "Krzem", "Magnez", "Pszenica (Zboże)", "Kukurydza", "Rzepak", "Ryż", "Kawa", "Kauczuk"])
 
 # --- 4. Języki ---
@@ -122,7 +95,7 @@ LANG = {
         "api_label": "Klucz API OpenAI", "nav_analysis": "📂 ANALIZA TEKSTOWA",
         "nav_maps": "🗺️ MODUŁ WIZUALNY", "mode_label": "Wybierz tryb:",
         "mode_res": "Surowce Strategiczne", "mode_pol": "Polityka", "mode_rel": "Analiza Relacji",
-        "map_option_off": "Wyłączony", "map_option_gold": "Mapa Rezerw Złota", "map_option_threats": "Globalny Monitor Zagrożeń (Monitor)",
+        "map_option_off": "Wyłączony", "map_option_gold": "Mapa Rezerw Złota", "map_option_threats": "Globalny Monitor Zagrożeń",
         "country_label": "📍 Wybierz Państwo:", "country2_label": "🤝 Wybierz drugie Państwo:",
         "res_label": "💎 Wybierz Surowiec:", "pol_submode_label": "🔍 Obszar polityki:",
         "pol_options": ["Partie Polityczne", "System Władzy", "Główne Osoby w Państwie"],
@@ -136,7 +109,7 @@ LANG = {
         "api_label": "OpenAI API Key", "nav_analysis": "📂 TEXTUAL ANALYSIS",
         "nav_maps": "🗺️ VISUAL MODULE", "mode_label": "Select mode:",
         "mode_res": "Strategic Commodities", "mode_pol": "Politics", "mode_rel": "Relationship Analysis",
-        "map_option_off": "Disabled", "map_option_gold": "Gold Reserves Map", "map_option_threats": "Global Threat Monitor (Dashboard)",
+        "map_option_off": "Disabled", "map_option_gold": "Gold Reserves Map", "map_option_threats": "Global Threat Monitor",
         "country_label": "📍 Select Country:", "country2_label": "🤝 Select second Country:",
         "res_label": "💎 Select Commodity:", "pol_submode_label": "🔍 Politics area:",
         "pol_options": ["Political Parties", "Government System", "Key Figures"],
@@ -182,10 +155,11 @@ if map_selection == L["map_option_gold"]:
 elif map_selection == L["map_option_threats"]:
     st.subheader(L["map_option_threats"])
     fig_threats = px.choropleth(df_threats, locations="ISO_Code", color="Kategoria", hover_name="Country",
-                        color_discrete_map=color_map_threats, labels={'Kategoria':'Rodzaj Zagrożenia'})
-    fig_threats.update_layout(geo=dict(showframe=False, projection_type='equirectangular'), margin={"r":0,"t":40,"l":0,"b":0})
+                        color_discrete_map=color_map_threats, 
+                        category_orders={"Kategoria": ["Wojna", "Niestabilność Polityczna", "Terroryzm", "Kryzys Gospodarczy"]},
+                        labels={'Kategoria':''})
+    fig_threats.update_layout(geo=dict(showframe=False, projection_type='natural earth'), margin={"r":0,"t":40,"l":0,"b":0})
     st.plotly_chart(fig_threats, use_container_width=True)
-    st.info("Mapa monitoruje 🔴 Wojny, 🟠 Niestabilność polityczną oraz 🟤 Kryzysy gospodarcze na świecie (Dane symulowane).")
 
 else:
     col1, col2 = st.columns(2)
