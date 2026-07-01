@@ -264,6 +264,46 @@ st.markdown("""
         font-size: 0.95em;
     }
 
+    /* --- Popover jako klikalna karta metryki --- */
+    div[data-testid="stPopover"] > div > button {
+        background: rgba(255,255,255,0.045) !important;
+        border: 1px solid rgba(255,255,255,0.09) !important;
+        border-radius: 16px !important;
+        padding: 18px 20px !important;
+        width: 100% !important;
+        backdrop-filter: blur(20px);
+        transition: transform 0.2s ease, border-color 0.2s ease !important;
+        color: #f0f2ff !important;
+        font-family: 'Poppins', sans-serif !important;
+        font-weight: 700 !important;
+        box-shadow: none !important;
+        text-align: center !important;
+    }
+    div[data-testid="stPopover"] > div > button:hover {
+        transform: translateY(-3px);
+        border-color: rgba(139,92,246,0.4) !important;
+        background: rgba(255,255,255,0.06) !important;
+    }
+    div[data-testid="stPopover"] > div > button p {
+        font-size: 1.0em !important;
+    }
+    div[data-testid="stPopoverBody"] {
+        background: rgba(17,22,45,0.98) !important;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.12) !important;
+        border-radius: 16px !important;
+    }
+    .flag-country-item {
+        color: #dde1f5;
+        font-size: 0.92em;
+        padding: 6px 4px;
+        border-radius: 6px;
+        transition: background 0.15s ease;
+    }
+    .flag-country-item:hover {
+        background: rgba(255,255,255,0.06);
+    }
+
     /* --- Metric cards row --- */
     .metric-card {
         background: rgba(255,255,255,0.045);
@@ -397,6 +437,62 @@ ALL_COUNTRIES = sorted([
 
 COMMODITIES = sorted(["Gaz Ziemny", "Ropa Naftowa", "Węgiel Kamienny", "Uran", "Wodór", "Miedź", "Aluminium", "Żelazo", "Nikiel", "Cynk", "Złoto", "Srebro", "Platyna", "Lit", "Kobalt", "Metale Ziem Rzadkich", "Grafit", "Krzem", "Magnez", "Pszenica (Zboże)", "Kukurydza", "Rzepak", "Ryż", "Kawa", "Kauczuk"])
 
+# --- 3b. Mapowanie Państwo -> Kod ISO (do generowania flag) ---
+COUNTRY_ISO_MAP = {
+    "Afganistan": "AF", "Albania": "AL", "Algieria": "DZ", "Andora": "AD", "Angola": "AO",
+    "Antigua i Barbuda": "AG", "Arabia Saudyjska": "SA", "Argentyna": "AR", "Armenia": "AM",
+    "Australia": "AU", "Austria": "AT", "Azerbejdżan": "AZ", "Bahamy": "BS", "Bahrajn": "BH",
+    "Bangladesz": "BD", "Barbados": "BB", "Belgia": "BE", "Belize": "BZ", "Benin": "BJ",
+    "Bhutan": "BT", "Białoruś": "BY", "Boliwia": "BO", "Bośnia i Hercegowina": "BA",
+    "Botswana": "BW", "Brazylia": "BR", "Brunei": "BN", "Bułgaria": "BG", "Burkina Faso": "BF",
+    "Burundi": "BI", "Chile": "CL", "Chiny": "CN", "Chorwacja": "HR", "Cypr": "CY", "Czad": "TD",
+    "Czarnogóra": "ME", "Czechy": "CZ", "Dania": "DK", "Demokratyczna Republika Konga": "CD",
+    "Dominika": "DM", "Dominikana": "DO", "Dżibuti": "DJ", "Egipt": "EG", "Ekwador": "EC",
+    "Erytrea": "ER", "Estonia": "EE", "Eswatini": "SZ", "Etiopia": "ET", "Fidżi": "FJ",
+    "Filipiny": "PH", "Finlandia": "FI", "Francja": "FR", "Gabon": "GA", "Gambia": "GM",
+    "Ghana": "GH", "Grecja": "GR", "Grenada": "GD", "Gruzja": "GE", "Gujana": "GY",
+    "Gwatemala": "GT", "Gwinea": "GN", "Gwinea Bissau": "GW", "Gwinea Równikowa": "GQ",
+    "Haiti": "HT", "Hiszpania": "ES", "Holandia": "NL", "Honduras": "HN", "Indie": "IN",
+    "Indonezja": "ID", "Irak": "IQ", "Iran": "IR", "Irlandia": "IE", "Islandia": "IS",
+    "Izrael": "IL", "Jamajka": "JM", "Japonia": "JP", "Jemen": "YE", "Jordania": "JO",
+    "Kambodża": "KH", "Kamerun": "CM", "Kanada": "CA", "Katar": "QA", "Kazachstan": "KZ",
+    "Kenia": "KE", "Kirgistan": "KG", "Kiribati": "KI", "Kolumbia": "CO", "Komory": "KM",
+    "Kongo": "CG", "Korea Południowa": "KR", "Korea Północna": "KP", "Kostaryka": "CR",
+    "Kuba": "CU", "Kuwejt": "KW", "Laos": "LA", "Lesotho": "LS", "Liban": "LB",
+    "Liberia": "LR", "Libia": "LY", "Liechtenstein": "LI", "Litwa": "LT", "Luksemburg": "LU",
+    "Łotwa": "LV", "Macedonia Północna": "MK", "Madagaskar": "MG", "Malawi": "MW",
+    "Malediwy": "MV", "Malezja": "MY", "Mali": "ML", "Malta": "MT", "Maroko": "MA",
+    "Mauretania": "MR", "Mauritius": "MU", "Meksyk": "MX", "Mikronezja": "FM",
+    "Mołdawia": "MD", "Monako": "MC", "Mongolia": "MN", "Mozambik": "MZ", "Namibia": "NA",
+    "Nauru": "NR", "Nepal": "NP", "Niemcy": "DE", "Niger": "NE", "Nigeria": "NG",
+    "Nikaragua": "NI", "Norwegia": "NO", "Nowa Zelandia": "NZ", "Oman": "OM",
+    "Pakistan": "PK", "Palau": "PW", "Palestyna": "PS", "Panama": "PA",
+    "Papua-Nowa Gwinea": "PG", "Paragwaj": "PY", "Peru": "PE", "Polska": "PL",
+    "Portugalia": "PT", "Republika Południowej Afryki": "ZA",
+    "Republika Środkowoafrykańska": "CF", "Republika Zielonego Przylądka": "CV",
+    "Rosja": "RU", "Rumunia": "RO", "Rwanda": "RW", "Saint Kitts i Nevis": "KN",
+    "Saint Lucia": "LC", "Saint Vincent i Grenadyny": "VC", "Salwador": "SV",
+    "Samoa": "WS", "San Marino": "SM", "Senegal": "SN", "Serbia": "RS", "Seszele": "SC",
+    "Sierra Leone": "SL", "Singapur": "SG", "Słowacja": "SK", "Słowenia": "SI",
+    "Somalia": "SO", "Sri Lanka": "LK", "Sudan": "SD", "Sudan Południowy": "SS",
+    "Surinam": "SR", "Syria": "SY", "Szwajcaria": "CH", "Szwecja": "SE",
+    "Tadżykistan": "TJ", "Tajlandia": "TH", "Tajwan": "TW", "Tanzania": "TZ",
+    "Timor Wschodni": "TL", "Togo": "TG", "Tonga": "TO", "Trynidad i Tobago": "TT",
+    "Tunezja": "TN", "Turcja": "TR", "Turkmenistan": "TM", "Tuvalu": "TV",
+    "Uganda": "UG", "Ukraina": "UA", "Urugwaj": "UY", "USA": "US", "Uzbekistan": "UZ",
+    "Vanuatu": "VU", "Watykan": "VA", "Wenezuela": "VE", "Węgry": "HU",
+    "Wielka Brytania": "GB", "Wietnam": "VN", "Włochy": "IT",
+    "Wybrzeże Kości Słoniowej": "CI", "Wyspy Marshalla": "MH", "Wyspy Salomona": "SB",
+    "Wyspy Świętego Tomasza i Książęca": "ST", "Zambia": "ZM", "Zimbabwe": "ZW", "ZEA": "AE"
+}
+
+def country_flag(country_name):
+    """Zwraca emoji flagi na podstawie kodu ISO alpha-2 kraju."""
+    iso = COUNTRY_ISO_MAP.get(country_name)
+    if not iso:
+        return "🏳️"
+    return "".join(chr(0x1F1E6 + ord(c) - ord('A')) for c in iso)
+
 # --- 4. Języki ---
 LANG = {
     "Polska 🇵🇱": {
@@ -511,9 +607,13 @@ status_placeholder.markdown(f'''
 # --- 6b. Metric cards ---
 mcol1, mcol2, mcol3, mcol4 = st.columns(4)
 with mcol1:
-    st.markdown(f'''<div class="metric-card"><div class="metric-icon">🌐</div>
-        <div class="metric-value">{len(ALL_COUNTRIES)}</div>
-        <div class="metric-label">{L["m1_label"]}</div></div>''', unsafe_allow_html=True)
+    with st.popover(f"🌐  {len(ALL_COUNTRIES)}  ·  {L['m1_label']}", use_container_width=True):
+        st.markdown(f"**🌍 {L['m1_label']} ({len(ALL_COUNTRIES)})**")
+        st.markdown("---")
+        flag_cols = st.columns(3)
+        for idx, country in enumerate(ALL_COUNTRIES):
+            flag = country_flag(country)
+            flag_cols[idx % 3].markdown(f'<div class="flag-country-item">{flag}&nbsp;&nbsp;{country}</div>', unsafe_allow_html=True)
 with mcol2:
     st.markdown(f'''<div class="metric-card"><div class="metric-icon">💎</div>
         <div class="metric-value">{len(COMMODITIES)}</div>
