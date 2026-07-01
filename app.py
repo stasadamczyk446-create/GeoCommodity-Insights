@@ -312,8 +312,13 @@ st.markdown("""
         border-color: rgba(139,92,246,0.4);
     }
     .country-flag-icon {
-        font-size: 2.0em;
-        margin-bottom: 8px;
+        width: 56px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+        border: 1px solid rgba(255,255,255,0.12);
     }
     .country-name {
         font-family: 'Poppins', sans-serif;
@@ -504,12 +509,14 @@ COUNTRY_ISO_MAP = {
     "Wyspy Świętego Tomasza i Książęca": "ST", "Zambia": "ZM", "Zimbabwe": "ZW", "ZEA": "AE"
 }
 
-def country_flag(country_name):
-    """Zwraca emoji flagi na podstawie kodu ISO alpha-2 kraju."""
+def country_flag_url(country_name, width=80):
+    """Zwraca URL do prawdziwego obrazu flagi (PNG) z darmowego CDN flagcdn.com,
+    na podstawie kodu ISO alpha-2 kraju. Renderuje się poprawnie na każdym systemie
+    (w przeciwieństwie do emoji flag, których Windows nie wyświetla)."""
     iso = COUNTRY_ISO_MAP.get(country_name)
     if not iso:
-        return "🏳️"
-    return "".join(chr(0x1F1E6 + ord(c) - ord('A')) for c in iso)
+        return None
+    return f"https://flagcdn.com/w{width}/{iso.lower()}.png"
 
 # --- 4. Języki ---
 LANG = {
@@ -661,10 +668,10 @@ if st.session_state.show_countries_page:
 
     country_cols = st.columns(4)
     for idx, country in enumerate(ALL_COUNTRIES):
-        flag = country_flag(country)
+        flag_url = country_flag_url(country, width=80)
         with country_cols[idx % 4]:
             st.markdown(f'''<div class="country-card">
-                <div class="country-flag-icon">{flag}</div>
+                <img class="country-flag-icon" src="{flag_url}" alt="{country}" loading="lazy">
                 <div class="country-name">{country}</div>
             </div>''', unsafe_allow_html=True)
 
