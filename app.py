@@ -451,11 +451,38 @@ with st.sidebar:
     api_key = st.text_input(f"🔑 {L['api_label']}", type="password")
 
 # --- 6. Logo / Hero Header ---
+def get_transparent_logo_base64(file_path):
+    """Wczytuje logo i usuwa białe/jasne tło, zwracając obraz PNG (RGBA) jako base64."""
+    from PIL import Image
+    import numpy as np
+    from io import BytesIO
+
+    img = Image.open(file_path).convert("RGBA")
+    data = np.array(img)
+    r, g, b, a = data[:, :, 0], data[:, :, 1], data[:, :, 2], data[:, :, 3]
+
+    # Piksele czysto białe -> w pełni przezroczyste
+    white_mask = (r > 235) & (g > 235) & (b > 235)
+    data[:, :, 3] = np.where(white_mask, 0, 255)
+
+    # Piksele prawie białe (antyaliasing na krawędziach liter) -> częściowa przezroczystość
+    near_white = (r > 200) & (g > 200) & (b > 200) & ~white_mask
+    avg = (r.astype(int) + g.astype(int) + b.astype(int)) / 3
+    alpha_partial = np.clip((255 - avg) / (255 - 200) * 255, 0, 255).astype(np.uint8)
+    data[:, :, 3] = np.where(near_white, alpha_partial, data[:, :, 3])
+
+    result = Image.fromarray(data, "RGBA")
+    buffer = BytesIO()
+    result.save(buffer, format="PNG")
+    return base64.b64encode(buffer.getvalue()).decode()
+
 if os.path.exists("logo.png"):
-    def get_base64_logo(file):
-        with open(file, "rb") as f: return base64.b64encode(f.read()).decode()
-    encoded_logo = get_base64_logo("logo.png")
-    st.markdown(f'<div style="display: flex; justify-content: center; padding-top: 15px;"><img src="data:image/png;base64,{encoded_logo}" width="480"></div>', unsafe_allow_html=True)
+    encoded_logo = get_transparent_logo_base64("logo.png")
+    st.markdown(f'''
+        <div style="display: flex; justify-content: center; align-items: center; padding-top: 15px; background: transparent;">
+            <img src="data:image/png;base64,{encoded_logo}" width="420" style="background: transparent; filter: drop-shadow(0 4px 20px rgba(139,92,246,0.25));">
+        </div>
+    ''', unsafe_allow_html=True)
 else:
     st.markdown(f"""
     <div class="hero-wrap">
