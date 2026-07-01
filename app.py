@@ -264,8 +264,9 @@ st.markdown("""
         font-size: 0.95em;
     }
 
-    /* --- Popover jako klikalna karta metryki --- */
-    div[data-testid="stPopover"] > div > button {
+    /* --- Przycisk "195 Państw" wyglądający identycznie jak metric-card --- */
+    /* Technika markera: div-znacznik tuż przed przyciskiem pozwala go precyzyjnie wybrać */
+    div.element-container:has(> div.metric-trigger-marker) + div.element-container button {
         background: rgba(255,255,255,0.045) !important;
         border: 1px solid rgba(255,255,255,0.09) !important;
         border-radius: 16px !important;
@@ -273,35 +274,52 @@ st.markdown("""
         width: 100% !important;
         backdrop-filter: blur(20px);
         transition: transform 0.2s ease, border-color 0.2s ease !important;
-        color: #f0f2ff !important;
-        font-family: 'Poppins', sans-serif !important;
-        font-weight: 700 !important;
         box-shadow: none !important;
         text-align: center !important;
+        line-height: 1.35 !important;
+        min-height: 96px;
     }
-    div[data-testid="stPopover"] > div > button:hover {
+    div.element-container:has(> div.metric-trigger-marker) + div.element-container button:hover {
         transform: translateY(-3px);
         border-color: rgba(139,92,246,0.4) !important;
         background: rgba(255,255,255,0.06) !important;
     }
-    div[data-testid="stPopover"] > div > button p {
-        font-size: 1.0em !important;
+    div.element-container:has(> div.metric-trigger-marker) + div.element-container button p {
+        color: #f0f2ff !important;
+        margin: 0 !important;
     }
-    div[data-testid="stPopoverBody"] {
-        background: rgba(17,22,45,0.98) !important;
+    div.element-container:has(> div.metric-trigger-marker) + div.element-container button strong {
+        font-family: 'Poppins', sans-serif !important;
+        font-weight: 700 !important;
+        font-size: 1.3em !important;
+        color: #f0f2ff !important;
+    }
+
+    /* --- Karty pojedynczych państw na stronie listy --- */
+    .country-card {
+        background: rgba(255,255,255,0.045);
+        border: 1px solid rgba(255,255,255,0.09);
+        border-radius: 16px;
+        padding: 18px 16px;
+        text-align: center;
         backdrop-filter: blur(20px);
-        border: 1px solid rgba(255,255,255,0.12) !important;
-        border-radius: 16px !important;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+        margin-bottom: 16px;
+        height: 100%;
     }
-    .flag-country-item {
-        color: #dde1f5;
-        font-size: 0.92em;
-        padding: 6px 4px;
-        border-radius: 6px;
-        transition: background 0.15s ease;
+    .country-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(139,92,246,0.4);
     }
-    .flag-country-item:hover {
-        background: rgba(255,255,255,0.06);
+    .country-flag-icon {
+        font-size: 2.0em;
+        margin-bottom: 8px;
+    }
+    .country-name {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 0.95em;
+        color: #f0f2ff;
     }
 
     /* --- Metric cards row --- */
@@ -510,7 +528,8 @@ LANG = {
         "score_label": "Wskaźnik Bezpieczeństwa Strategicznego (1-10):",
         "config_title": "Konfiguracja", "config_sub": "Ustaw parametry analizy",
         "select_title": "Parametry Analizy", "select_sub": "Wybierz państwo oraz przedmiot analizy",
-        "m1_label": "Państwa w bazie", "m2_label": "Surowce", "m3_label": "Zagrożenia globalne", "m4_label": "Model AI"
+        "m1_label": "Państwa w bazie", "m2_label": "Surowce", "m3_label": "Zagrożenia globalne", "m4_label": "Model AI",
+        "back_label": "← Powrót", "countries_page_title": "Wszystkie państwa w bazie"
     },
     "English 🇬🇧": {
         "code": "EN", "slogan": "AI-Powered Strategic Intelligence",
@@ -527,7 +546,8 @@ LANG = {
         "score_label": "Strategic Security Score (1-10):",
         "config_title": "Configuration", "config_sub": "Set analysis parameters",
         "select_title": "Analysis Parameters", "select_sub": "Choose country and analysis target",
-        "m1_label": "Countries in DB", "m2_label": "Commodities", "m3_label": "Global threats", "m4_label": "AI Model"
+        "m1_label": "Countries in DB", "m2_label": "Commodities", "m3_label": "Global threats", "m4_label": "AI Model",
+        "back_label": "← Back", "countries_page_title": "All countries in database"
     }
 }
 
@@ -604,16 +624,17 @@ status_placeholder.markdown(f'''
     </div>
 ''', unsafe_allow_html=True)
 
+# --- Inicjalizacja stanu nawigacji ---
+if "show_countries_page" not in st.session_state:
+    st.session_state.show_countries_page = False
+
 # --- 6b. Metric cards ---
 mcol1, mcol2, mcol3, mcol4 = st.columns(4)
 with mcol1:
-    with st.popover(f"🌐  {len(ALL_COUNTRIES)}  ·  {L['m1_label']}", use_container_width=True):
-        st.markdown(f"**🌍 {L['m1_label']} ({len(ALL_COUNTRIES)})**")
-        st.markdown("---")
-        flag_cols = st.columns(3)
-        for idx, country in enumerate(ALL_COUNTRIES):
-            flag = country_flag(country)
-            flag_cols[idx % 3].markdown(f'<div class="flag-country-item">{flag}&nbsp;&nbsp;{country}</div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-trigger-marker"></div>', unsafe_allow_html=True)
+    if st.button(f"🌐\n\n**{len(ALL_COUNTRIES)}**\n\n{L['m1_label']}", key="countries_trigger_btn", use_container_width=True):
+        st.session_state.show_countries_page = True
+        st.rerun()
 with mcol2:
     st.markdown(f'''<div class="metric-card"><div class="metric-icon">💎</div>
         <div class="metric-value">{len(COMMODITIES)}</div>
@@ -630,7 +651,24 @@ with mcol4:
 st.markdown("---")
 
 # --- 7. Interfejs Główny ---
-if map_selection == L["map_option_gold"]:
+if st.session_state.show_countries_page:
+    if st.button(L["back_label"], key="back_btn"):
+        st.session_state.show_countries_page = False
+        st.rerun()
+
+    st.markdown(f'<h3 style="color:#f0f2ff; text-align:center; margin-top:10px;">🌍 {L["countries_page_title"]} ({len(ALL_COUNTRIES)})</h3>', unsafe_allow_html=True)
+    st.write("")
+
+    country_cols = st.columns(4)
+    for idx, country in enumerate(ALL_COUNTRIES):
+        flag = country_flag(country)
+        with country_cols[idx % 4]:
+            st.markdown(f'''<div class="country-card">
+                <div class="country-flag-icon">{flag}</div>
+                <div class="country-name">{country}</div>
+            </div>''', unsafe_allow_html=True)
+
+elif map_selection == L["map_option_gold"]:
     st.markdown(f'<div class="chart-header"><h3 style="color:#f0f2ff;">🥇 {L["map_option_gold"]}</h3></div>', unsafe_allow_html=True)
     fig = px.choropleth(df_gold, locations="ISO_Code", color="Log_Tons", hover_name="Country",
                         hover_data={"Log_Tons": False, "Tons": True},
