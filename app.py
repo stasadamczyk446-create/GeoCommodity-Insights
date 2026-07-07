@@ -267,7 +267,8 @@ st.markdown("""
     /* --- Przyciski-kafelki wyglądające identycznie jak metric-card --- */
     /* Technika markera: div-znacznik tuż przed przyciskiem pozwala go precyzyjnie wybrać */
     div.element-container:has(div.metric-trigger-marker) + div.element-container button,
-    div.element-container:has(div.metric-trigger-marker-2) + div.element-container button {
+    div.element-container:has(div.metric-trigger-marker-2) + div.element-container button,
+    div.element-container:has(div.metric-trigger-marker-3) + div.element-container button {
         border-radius: 16px !important;
         padding: 18px 20px !important;
         width: 100% !important;
@@ -298,13 +299,25 @@ st.markdown("""
         border-color: rgba(34,197,94,0.55) !important;
         background: rgba(34,197,94,0.22) !important;
     }
+    /* Kafelek Zagrożeń - czerwone tło + hover */
+    div.element-container:has(div.metric-trigger-marker-3) + div.element-container button {
+        background: rgba(239,68,68,0.16) !important;
+        border: 1px solid rgba(239,68,68,0.3) !important;
+    }
+    div.element-container:has(div.metric-trigger-marker-3) + div.element-container button:hover {
+        transform: translateY(-3px);
+        border-color: rgba(239,68,68,0.55) !important;
+        background: rgba(239,68,68,0.24) !important;
+    }
     div.element-container:has(div.metric-trigger-marker) + div.element-container button p,
-    div.element-container:has(div.metric-trigger-marker-2) + div.element-container button p {
+    div.element-container:has(div.metric-trigger-marker-2) + div.element-container button p,
+    div.element-container:has(div.metric-trigger-marker-3) + div.element-container button p {
         color: #f0f2ff !important;
         margin: 0 !important;
     }
     div.element-container:has(div.metric-trigger-marker) + div.element-container button strong,
-    div.element-container:has(div.metric-trigger-marker-2) + div.element-container button strong {
+    div.element-container:has(div.metric-trigger-marker-2) + div.element-container button strong,
+    div.element-container:has(div.metric-trigger-marker-3) + div.element-container button strong {
         font-family: 'Poppins', sans-serif !important;
         font-weight: 700 !important;
         font-size: 1.3em !important;
@@ -387,6 +400,35 @@ st.markdown("""
         font-weight: 600;
         font-size: 0.95em;
         color: #f0f2ff;
+    }
+
+    /* --- Karty kategorii zagrożeń (kolor per kategoria + liczba państw) --- */
+    .threat-card {
+        border-radius: 16px;
+        padding: 28px 20px;
+        text-align: center;
+        backdrop-filter: blur(20px);
+        transition: transform 0.2s ease, border-color 0.2s ease;
+        margin-bottom: 16px;
+        height: 100%;
+    }
+    .threat-card:hover {
+        transform: translateY(-3px);
+    }
+    .threat-icon {
+        font-size: 2.2em;
+        margin-bottom: 10px;
+    }
+    .threat-name {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 1.1em;
+        color: #f0f2ff;
+        margin-bottom: 4px;
+    }
+    .threat-count {
+        font-size: 0.82em;
+        color: #c7cde3;
     }
 
     /* --- Metric cards row --- */
@@ -599,7 +641,9 @@ LANG = {
         "select_title": "Parametry Analizy", "select_sub": "Wybierz państwo oraz przedmiot analizy",
         "m1_label": "Państwa w bazie", "m2_label": "Surowce", "m3_label": "Zagrożenia globalne", "m4_label": "Model AI",
         "back_label": "← Powrót", "countries_page_title": "Wszystkie państwa w bazie",
-        "commodities_page_title": "Wszystkie surowce w bazie"
+        "commodities_page_title": "Wszystkie surowce w bazie",
+        "threats_page_title": "Kategorie globalnych zagrożeń",
+        "threat_country_count": "państw"
     },
     "English 🇬🇧": {
         "code": "EN", "slogan": "AI-Powered Strategic Intelligence",
@@ -618,7 +662,9 @@ LANG = {
         "select_title": "Analysis Parameters", "select_sub": "Choose country and analysis target",
         "m1_label": "Countries in DB", "m2_label": "Commodities", "m3_label": "Global threats", "m4_label": "AI Model",
         "back_label": "← Back", "countries_page_title": "All countries in database",
-        "commodities_page_title": "All commodities in database"
+        "commodities_page_title": "All commodities in database",
+        "threats_page_title": "Global threat categories",
+        "threat_country_count": "countries"
     }
 }
 
@@ -700,6 +746,8 @@ if "show_countries_page" not in st.session_state:
     st.session_state.show_countries_page = False
 if "show_commodities_page" not in st.session_state:
     st.session_state.show_commodities_page = False
+if "show_threats_page" not in st.session_state:
+    st.session_state.show_threats_page = False
 
 # --- 6b. Metric cards ---
 mcol1, mcol2, mcol3, mcol4 = st.columns(4)
@@ -708,17 +756,22 @@ with mcol1:
     if st.button(f"🌐\n\n**{len(ALL_COUNTRIES)}**\n\n{L['m1_label']}", key="countries_trigger_btn", use_container_width=True):
         st.session_state.show_countries_page = True
         st.session_state.show_commodities_page = False
+        st.session_state.show_threats_page = False
         st.rerun()
 with mcol2:
     st.markdown('<div class="metric-trigger-marker-2"></div>', unsafe_allow_html=True)
     if st.button(f"💎\n\n**{len(COMMODITIES)}**\n\n{L['m2_label']}", key="commodities_trigger_btn", use_container_width=True):
         st.session_state.show_commodities_page = True
         st.session_state.show_countries_page = False
+        st.session_state.show_threats_page = False
         st.rerun()
 with mcol3:
-    st.markdown(f'''<div class="metric-card"><div class="metric-icon">⚠️</div>
-        <div class="metric-value">{len(df_threats)}</div>
-        <div class="metric-label">{L["m3_label"]}</div></div>''', unsafe_allow_html=True)
+    st.markdown('<div class="metric-trigger-marker-3"></div>', unsafe_allow_html=True)
+    if st.button(f"⚠️\n\n**{len(df_threats)}**\n\n{L['m3_label']}", key="threats_trigger_btn", use_container_width=True):
+        st.session_state.show_threats_page = True
+        st.session_state.show_countries_page = False
+        st.session_state.show_commodities_page = False
+        st.rerun()
 with mcol4:
     st.markdown(f'''<div class="metric-card"><div class="metric-icon">🤖</div>
         <div class="metric-value" style="font-size:0.95em;">{model_version}</div>
@@ -760,6 +813,36 @@ elif st.session_state.show_commodities_page:
             st.markdown(f'''<div class="commodity-card">
                 <div class="commodity-icon">💎</div>
                 <div class="commodity-name">{commodity}</div>
+            </div>''', unsafe_allow_html=True)
+
+elif st.session_state.show_threats_page:
+    st.markdown('<div class="back-btn-marker"></div>', unsafe_allow_html=True)
+    if st.button(L["back_label"], key="back_btn_threats"):
+        st.session_state.show_threats_page = False
+        st.rerun()
+
+    st.markdown(f'<h3 style="color:#f0f2ff; text-align:center; margin-top:10px;">⚠️ {L["threats_page_title"]}</h3>', unsafe_allow_html=True)
+    st.write("")
+
+    threat_category_order = ["Wojna", "Konflikt zbrojny", "Niestabilność Polityczna", "Terroryzm", "Kryzys Gospodarczy"]
+    threat_icons = {
+        "Wojna": "⚔️",
+        "Konflikt zbrojny": "💥",
+        "Niestabilność Polityczna": "🏛️",
+        "Terroryzm": "💣",
+        "Kryzys Gospodarczy": "📉"
+    }
+
+    threat_cols = st.columns(len(threat_category_order))
+    for idx, category in enumerate(threat_category_order):
+        color_hex = color_map_threats.get(category, "#e74c3c")
+        count = int((df_threats["Kategoria"] == category).sum())
+        icon = threat_icons.get(category, "⚠️")
+        with threat_cols[idx]:
+            st.markdown(f'''<div class="threat-card" style="background: {color_hex}26; border: 1px solid {color_hex}66;">
+                <div class="threat-icon">{icon}</div>
+                <div class="threat-name">{category}</div>
+                <div class="threat-count">{count} {L["threat_country_count"]}</div>
             </div>''', unsafe_allow_html=True)
 
 elif map_selection == L["map_option_gold"]:
