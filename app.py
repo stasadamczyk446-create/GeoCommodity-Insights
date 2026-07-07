@@ -268,29 +268,35 @@ st.markdown("""
     /* Technika markera: div-znacznik tuż przed przyciskiem pozwala go precyzyjnie wybrać */
     div.element-container:has(div.metric-trigger-marker) + div.element-container button,
     div.element-container:has(div.metric-trigger-marker-2) + div.element-container button {
-        background: rgba(255,255,255,0.045) !important;
-        border: 1px solid rgba(255,255,255,0.09) !important;
         border-radius: 16px !important;
         padding: 18px 20px !important;
         width: 100% !important;
         backdrop-filter: blur(20px);
-        transition: transform 0.2s ease, border-color 0.2s ease !important;
+        transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease !important;
         box-shadow: none !important;
         text-align: center !important;
         line-height: 1.35 !important;
         min-height: 96px;
     }
-    /* Kafelek Państw - hover fioletowy */
+    /* Kafelek Państw - fioletowe tło + hover */
+    div.element-container:has(div.metric-trigger-marker) + div.element-container button {
+        background: rgba(139,92,246,0.16) !important;
+        border: 1px solid rgba(139,92,246,0.3) !important;
+    }
     div.element-container:has(div.metric-trigger-marker) + div.element-container button:hover {
         transform: translateY(-3px);
-        border-color: rgba(139,92,246,0.4) !important;
-        background: rgba(255,255,255,0.06) !important;
+        border-color: rgba(139,92,246,0.55) !important;
+        background: rgba(139,92,246,0.24) !important;
     }
-    /* Kafelek Surowców - hover zielony */
+    /* Kafelek Surowców - zielone tło + hover */
+    div.element-container:has(div.metric-trigger-marker-2) + div.element-container button {
+        background: rgba(34,197,94,0.14) !important;
+        border: 1px solid rgba(34,197,94,0.3) !important;
+    }
     div.element-container:has(div.metric-trigger-marker-2) + div.element-container button:hover {
         transform: translateY(-3px);
-        border-color: rgba(34,197,94,0.45) !important;
-        background: rgba(255,255,255,0.06) !important;
+        border-color: rgba(34,197,94,0.55) !important;
+        background: rgba(34,197,94,0.22) !important;
     }
     div.element-container:has(div.metric-trigger-marker) + div.element-container button p,
     div.element-container:has(div.metric-trigger-marker-2) + div.element-container button p {
