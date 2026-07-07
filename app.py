@@ -264,9 +264,10 @@ st.markdown("""
         font-size: 0.95em;
     }
 
-    /* --- Przycisk "195 Państw" wyglądający identycznie jak metric-card --- */
+    /* --- Przyciski-kafelki wyglądające identycznie jak metric-card --- */
     /* Technika markera: div-znacznik tuż przed przyciskiem pozwala go precyzyjnie wybrać */
-    div.element-container:has(> div.metric-trigger-marker) + div.element-container button {
+    div.element-container:has(div.metric-trigger-marker) + div.element-container button,
+    div.element-container:has(div.metric-trigger-marker-2) + div.element-container button {
         background: rgba(255,255,255,0.045) !important;
         border: 1px solid rgba(255,255,255,0.09) !important;
         border-radius: 16px !important;
@@ -279,20 +280,48 @@ st.markdown("""
         line-height: 1.35 !important;
         min-height: 96px;
     }
-    div.element-container:has(> div.metric-trigger-marker) + div.element-container button:hover {
+    /* Kafelek Państw - hover fioletowy */
+    div.element-container:has(div.metric-trigger-marker) + div.element-container button:hover {
         transform: translateY(-3px);
         border-color: rgba(139,92,246,0.4) !important;
         background: rgba(255,255,255,0.06) !important;
     }
-    div.element-container:has(> div.metric-trigger-marker) + div.element-container button p {
+    /* Kafelek Surowców - hover zielony */
+    div.element-container:has(div.metric-trigger-marker-2) + div.element-container button:hover {
+        transform: translateY(-3px);
+        border-color: rgba(34,197,94,0.45) !important;
+        background: rgba(255,255,255,0.06) !important;
+    }
+    div.element-container:has(div.metric-trigger-marker) + div.element-container button p,
+    div.element-container:has(div.metric-trigger-marker-2) + div.element-container button p {
         color: #f0f2ff !important;
         margin: 0 !important;
     }
-    div.element-container:has(> div.metric-trigger-marker) + div.element-container button strong {
+    div.element-container:has(div.metric-trigger-marker) + div.element-container button strong,
+    div.element-container:has(div.metric-trigger-marker-2) + div.element-container button strong {
         font-family: 'Poppins', sans-serif !important;
         font-weight: 700 !important;
         font-size: 1.3em !important;
         color: #f0f2ff !important;
+    }
+
+    /* --- Przycisk "Powrót" - neutralny styl, bez fioletowego gradientu/blysku --- */
+    div.element-container:has(div.back-btn-marker) + div.element-container button {
+        background: rgba(255,255,255,0.06) !important;
+        color: #c7cde3 !important;
+        border: 1px solid rgba(255,255,255,0.12) !important;
+        border-radius: 10px !important;
+        box-shadow: none !important;
+        font-weight: 500 !important;
+        padding: 8px 18px !important;
+        transition: background 0.2s ease, border-color 0.2s ease !important;
+    }
+    div.element-container:has(div.back-btn-marker) + div.element-container button:hover {
+        background: rgba(255,255,255,0.1) !important;
+        border-color: rgba(255,255,255,0.22) !important;
+        color: #f0f2ff !important;
+        transform: none !important;
+        box-shadow: none !important;
     }
 
     /* --- Karty pojedynczych państw na stronie listy --- */
@@ -321,6 +350,33 @@ st.markdown("""
         border: 1px solid rgba(255,255,255,0.12);
     }
     .country-name {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 0.95em;
+        color: #f0f2ff;
+    }
+
+    /* --- Karty pojedynczych surowców na stronie listy (zielony akcent) --- */
+    .commodity-card {
+        background: rgba(255,255,255,0.045);
+        border: 1px solid rgba(255,255,255,0.09);
+        border-radius: 16px;
+        padding: 24px 16px;
+        text-align: center;
+        backdrop-filter: blur(20px);
+        transition: transform 0.2s ease, border-color 0.2s ease;
+        margin-bottom: 16px;
+        height: 100%;
+    }
+    .commodity-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(34,197,94,0.45);
+    }
+    .commodity-icon {
+        font-size: 2.0em;
+        margin-bottom: 8px;
+    }
+    .commodity-name {
         font-family: 'Poppins', sans-serif;
         font-weight: 600;
         font-size: 0.95em;
@@ -536,7 +592,8 @@ LANG = {
         "config_title": "Konfiguracja", "config_sub": "Ustaw parametry analizy",
         "select_title": "Parametry Analizy", "select_sub": "Wybierz państwo oraz przedmiot analizy",
         "m1_label": "Państwa w bazie", "m2_label": "Surowce", "m3_label": "Zagrożenia globalne", "m4_label": "Model AI",
-        "back_label": "← Powrót", "countries_page_title": "Wszystkie państwa w bazie"
+        "back_label": "← Powrót", "countries_page_title": "Wszystkie państwa w bazie",
+        "commodities_page_title": "Wszystkie surowce w bazie"
     },
     "English 🇬🇧": {
         "code": "EN", "slogan": "AI-Powered Strategic Intelligence",
@@ -554,7 +611,8 @@ LANG = {
         "config_title": "Configuration", "config_sub": "Set analysis parameters",
         "select_title": "Analysis Parameters", "select_sub": "Choose country and analysis target",
         "m1_label": "Countries in DB", "m2_label": "Commodities", "m3_label": "Global threats", "m4_label": "AI Model",
-        "back_label": "← Back", "countries_page_title": "All countries in database"
+        "back_label": "← Back", "countries_page_title": "All countries in database",
+        "commodities_page_title": "All commodities in database"
     }
 }
 
@@ -634,6 +692,8 @@ status_placeholder.markdown(f'''
 # --- Inicjalizacja stanu nawigacji ---
 if "show_countries_page" not in st.session_state:
     st.session_state.show_countries_page = False
+if "show_commodities_page" not in st.session_state:
+    st.session_state.show_commodities_page = False
 
 # --- 6b. Metric cards ---
 mcol1, mcol2, mcol3, mcol4 = st.columns(4)
@@ -641,11 +701,14 @@ with mcol1:
     st.markdown('<div class="metric-trigger-marker"></div>', unsafe_allow_html=True)
     if st.button(f"🌐\n\n**{len(ALL_COUNTRIES)}**\n\n{L['m1_label']}", key="countries_trigger_btn", use_container_width=True):
         st.session_state.show_countries_page = True
+        st.session_state.show_commodities_page = False
         st.rerun()
 with mcol2:
-    st.markdown(f'''<div class="metric-card"><div class="metric-icon">💎</div>
-        <div class="metric-value">{len(COMMODITIES)}</div>
-        <div class="metric-label">{L["m2_label"]}</div></div>''', unsafe_allow_html=True)
+    st.markdown('<div class="metric-trigger-marker-2"></div>', unsafe_allow_html=True)
+    if st.button(f"💎\n\n**{len(COMMODITIES)}**\n\n{L['m2_label']}", key="commodities_trigger_btn", use_container_width=True):
+        st.session_state.show_commodities_page = True
+        st.session_state.show_countries_page = False
+        st.rerun()
 with mcol3:
     st.markdown(f'''<div class="metric-card"><div class="metric-icon">⚠️</div>
         <div class="metric-value">{len(df_threats)}</div>
@@ -659,6 +722,7 @@ st.markdown("---")
 
 # --- 7. Interfejs Główny ---
 if st.session_state.show_countries_page:
+    st.markdown('<div class="back-btn-marker"></div>', unsafe_allow_html=True)
     if st.button(L["back_label"], key="back_btn"):
         st.session_state.show_countries_page = False
         st.rerun()
@@ -673,6 +737,23 @@ if st.session_state.show_countries_page:
             st.markdown(f'''<div class="country-card">
                 <img class="country-flag-icon" src="{flag_url}" alt="{country}" loading="lazy">
                 <div class="country-name">{country}</div>
+            </div>''', unsafe_allow_html=True)
+
+elif st.session_state.show_commodities_page:
+    st.markdown('<div class="back-btn-marker"></div>', unsafe_allow_html=True)
+    if st.button(L["back_label"], key="back_btn_commodities"):
+        st.session_state.show_commodities_page = False
+        st.rerun()
+
+    st.markdown(f'<h3 style="color:#f0f2ff; text-align:center; margin-top:10px;">💎 {L["commodities_page_title"]} ({len(COMMODITIES)})</h3>', unsafe_allow_html=True)
+    st.write("")
+
+    commodity_cols = st.columns(4)
+    for idx, commodity in enumerate(COMMODITIES):
+        with commodity_cols[idx % 4]:
+            st.markdown(f'''<div class="commodity-card">
+                <div class="commodity-icon">💎</div>
+                <div class="commodity-name">{commodity}</div>
             </div>''', unsafe_allow_html=True)
 
 elif map_selection == L["map_option_gold"]:
