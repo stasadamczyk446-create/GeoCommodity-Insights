@@ -395,12 +395,7 @@ st.markdown("""
     /* Podwójne zabezpieczenie: selektor po kluczu widgetu (st-key-) ORAZ technika markera */
     div.st-key-commodity_gold_link_btn,
     div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container {
-        height: 100% !important;
         margin-bottom: 16px !important;
-    }
-    div.st-key-commodity_gold_link_btn div[data-testid="stButton"],
-    div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container div[data-testid="stButton"] {
-        height: 100% !important;
     }
     div.st-key-commodity_gold_link_btn button,
     div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button {
@@ -409,7 +404,7 @@ st.markdown("""
         border-radius: 16px !important;
         padding: 24px 16px !important;
         width: 100% !important;
-        height: 100% !important;
+        min-height: unset !important;
         backdrop-filter: blur(20px) !important;
         transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease !important;
         box-shadow: none !important;
