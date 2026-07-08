@@ -391,6 +391,35 @@ st.markdown("""
         background: rgba(239,68,68,0.2) !important;
     }
 
+    /* --- Klikalna karta "Złoto" w liście surowców - prowadzi do mapy rezerw --- */
+    div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button {
+        background: rgba(234,179,8,0.16) !important;
+        border: 1px solid rgba(234,179,8,0.32) !important;
+        border-radius: 16px !important;
+        padding: 24px 16px !important;
+        width: 100% !important;
+        backdrop-filter: blur(20px);
+        transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease !important;
+        box-shadow: none !important;
+        text-align: center !important;
+        min-height: 120px;
+    }
+    div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button:hover {
+        transform: translateY(-3px);
+        border-color: rgba(234,179,8,0.6) !important;
+        background: rgba(234,179,8,0.26) !important;
+    }
+    div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button p {
+        color: #f0f2ff !important;
+        margin: 0 !important;
+        line-height: 1.4 !important;
+    }
+    div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button strong {
+        font-family: 'Poppins', sans-serif !important;
+        font-weight: 700 !important;
+        font-size: 1.0em !important;
+    }
+
     /* --- Przycisk "Powrót" - neutralny styl, bez fioletowego gradientu/blysku --- */
     div.element-container:has(div.back-btn-marker) + div.element-container button {
         background: rgba(255,255,255,0.06) !important;
@@ -642,6 +671,25 @@ ALL_COUNTRIES = sorted([
 
 COMMODITIES = sorted(["Gaz Ziemny", "Ropa Naftowa", "Węgiel Kamienny", "Uran", "Wodór", "Miedź", "Aluminium", "Żelazo", "Nikiel", "Cynk", "Złoto", "Srebro", "Platyna", "Lit", "Kobalt", "Metale Ziem Rzadkich", "Grafit", "Krzem", "Magnez", "Pszenica (Zboże)", "Kukurydza", "Rzepak", "Ryż", "Kawa", "Kauczuk"])
 
+# --- Ikony dla oczywistych surowców (pozostałe zostają z 💎) ---
+COMMODITY_ICONS = {
+    "Ropa Naftowa": "🛢️",
+    "Gaz Ziemny": "🔥",
+    "Węgiel Kamienny": "🪨",
+    "Uran": "☢️",
+    "Żelazo": "🧲",
+    "Złoto": "🥇",
+    "Srebro": "🥈",
+    "Lit": "🔋",
+    "Grafit": "✏️",
+    "Krzem": "💻",
+    "Pszenica (Zboże)": "🌾",
+    "Kukurydza": "🌽",
+    "Ryż": "🍚",
+    "Kawa": "☕",
+    "Kauczuk": "🛞",
+}
+
 # --- 3b. Mapowanie Państwo -> Kod ISO (do generowania flag) ---
 COUNTRY_ISO_MAP = {
     "Afganistan": "AF", "Albania": "AL", "Algieria": "DZ", "Andora": "AD", "Angola": "AO",
@@ -885,11 +933,19 @@ elif st.session_state.show_commodities_page:
 
     commodity_cols = st.columns(4)
     for idx, commodity in enumerate(COMMODITIES):
+        icon = COMMODITY_ICONS.get(commodity, "💎")
         with commodity_cols[idx % 4]:
-            st.markdown(f'''<div class="commodity-card">
-                <div class="commodity-icon">💎</div>
-                <div class="commodity-name">{commodity}</div>
-            </div>''', unsafe_allow_html=True)
+            if commodity == "Złoto":
+                st.markdown('<div class="commodity-gold-trigger-marker"></div>', unsafe_allow_html=True)
+                if st.button(f"{icon}\n\n**{commodity}**", key="commodity_gold_link_btn", use_container_width=True):
+                    st.session_state.show_commodities_page = False
+                    st.session_state.active_view = "gold"
+                    st.rerun()
+            else:
+                st.markdown(f'''<div class="commodity-card">
+                    <div class="commodity-icon">{icon}</div>
+                    <div class="commodity-name">{commodity}</div>
+                </div>''', unsafe_allow_html=True)
 
 elif st.session_state.show_threats_page:
     st.markdown('<div class="back-btn-marker"></div>', unsafe_allow_html=True)
