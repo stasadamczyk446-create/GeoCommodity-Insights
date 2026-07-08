@@ -324,6 +324,51 @@ st.markdown("""
         color: #f0f2ff !important;
     }
 
+    /* --- Kafelki przełączające widok główny: Analiza / Złoto / Zagrożenia --- */
+    div.element-container:has(div.view-trigger-marker-a) + div.element-container button,
+    div.element-container:has(div.view-trigger-marker-b) + div.element-container button,
+    div.element-container:has(div.view-trigger-marker-c) + div.element-container button {
+        border-radius: 14px !important;
+        padding: 16px 20px !important;
+        width: 100% !important;
+        backdrop-filter: blur(20px);
+        transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease !important;
+        box-shadow: none !important;
+        text-align: center !important;
+        font-weight: 600 !important;
+        color: #f0f2ff !important;
+    }
+    /* Analiza AI - niebiesko-indygo */
+    div.element-container:has(div.view-trigger-marker-a) + div.element-container button {
+        background: rgba(99,102,241,0.14) !important;
+        border: 1px solid rgba(99,102,241,0.28) !important;
+    }
+    div.element-container:has(div.view-trigger-marker-a) + div.element-container button:hover {
+        transform: translateY(-2px);
+        border-color: rgba(99,102,241,0.5) !important;
+        background: rgba(99,102,241,0.2) !important;
+    }
+    /* Mapa Złota - złoty/bursztynowy */
+    div.element-container:has(div.view-trigger-marker-b) + div.element-container button {
+        background: rgba(234,179,8,0.14) !important;
+        border: 1px solid rgba(234,179,8,0.28) !important;
+    }
+    div.element-container:has(div.view-trigger-marker-b) + div.element-container button:hover {
+        transform: translateY(-2px);
+        border-color: rgba(234,179,8,0.5) !important;
+        background: rgba(234,179,8,0.2) !important;
+    }
+    /* Monitor Zagrożeń - czerwony */
+    div.element-container:has(div.view-trigger-marker-c) + div.element-container button {
+        background: rgba(239,68,68,0.14) !important;
+        border: 1px solid rgba(239,68,68,0.28) !important;
+    }
+    div.element-container:has(div.view-trigger-marker-c) + div.element-container button:hover {
+        transform: translateY(-2px);
+        border-color: rgba(239,68,68,0.5) !important;
+        background: rgba(239,68,68,0.2) !important;
+    }
+
     /* --- Przycisk "Powrót" - neutralny styl, bez fioletowego gradientu/blysku --- */
     div.element-container:has(div.back-btn-marker) + div.element-container button {
         background: rgba(255,255,255,0.06) !important;
@@ -496,6 +541,17 @@ st.markdown("""
         color: #c7cde3 !important;
         font-weight: 500 !important;
         font-size: 0.92em !important;
+    }
+
+    /* --- Expander w sidebarze (Zaawansowane ustawienia) --- */
+    section[data-testid="stSidebar"] div[data-testid="stExpander"] {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+    }
+    section[data-testid="stSidebar"] div[data-testid="stExpander"] summary {
+        color: #e4e7f7 !important;
+        font-weight: 600 !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -681,14 +737,10 @@ with st.sidebar:
     analysis_mode = st.radio(L["mode_label"], [L["mode_res"], L["mode_pol"], L["mode_rel"]], label_visibility="collapsed")
     st.markdown("---")
 
-    st.markdown(f'<div class="sidebar-title" style="font-size:0.95em;">🗺️ {L["nav_maps"]}</div>', unsafe_allow_html=True)
-    map_selection = st.selectbox(" ", [L["map_option_off"], L["map_option_gold"], L["map_option_threats"]], label_visibility="collapsed")
-    st.markdown("---")
-
-    st.markdown(f'<div class="sidebar-title" style="font-size:0.95em;">⚙️ {L["config_title"]}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="sidebar-sub">{L["config_sub"]}</div>', unsafe_allow_html=True)
-    model_version = st.selectbox("🤖 Model AI:", ["gpt-4o-mini", "gpt-4o"])
-    api_key = st.text_input(f"🔑 {L['api_label']}", type="password")
+    with st.expander(f"⚙️ {L['config_title']}", expanded=True):
+        st.markdown(f'<div class="sidebar-sub" style="margin-top:-8px;">{L["config_sub"]}</div>', unsafe_allow_html=True)
+        model_version = st.selectbox("🤖 Model AI:", ["gpt-4o-mini", "gpt-4o"])
+        api_key = st.text_input(f"🔑 {L['api_label']}", type="password")
 
 # --- 6. Logo / Hero Header ---
 def get_transparent_logo_base64(file_path):
@@ -845,109 +897,137 @@ elif st.session_state.show_threats_page:
                 <div class="threat-count">{count} {L["threat_country_count"]}</div>
             </div>''', unsafe_allow_html=True)
 
-elif map_selection == L["map_option_gold"]:
-    st.markdown(f'<div class="chart-header"><h3 style="color:#f0f2ff;">🥇 {L["map_option_gold"]}</h3></div>', unsafe_allow_html=True)
-    fig = px.choropleth(df_gold, locations="ISO_Code", color="Log_Tons", hover_name="Country",
-                        hover_data={"Log_Tons": False, "Tons": True},
-                        color_continuous_scale="Spectral_r", labels={'Log_Tons':'Skala Potęgi', 'Tons': 'Tony'})
-    fig.update_layout(
-        geo=dict(showframe=False, projection_type='natural earth', bgcolor='rgba(0,0,0,0)',
-                 landcolor='rgba(255,255,255,0.03)', showland=True,
-                 subunitcolor='rgba(255,255,255,0.1)'),
-        margin={"r":0,"t":20,"l":0,"b":0},
-        paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)',
-        font_color='#c7cde3'
-    )
-    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-    st.plotly_chart(fig, use_container_width=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-elif map_selection == L["map_option_threats"]:
-    st.markdown(f'<div class="chart-header"><h3 style="color:#f0f2ff;">🚨 {L["map_option_threats"]}</h3></div>', unsafe_allow_html=True)
-    fig_threats = px.choropleth(df_threats, locations="ISO_Code", color="Kategoria", hover_name="Country",
-                        color_discrete_map=color_map_threats, 
-                        category_orders={"Kategoria": ["Wojna", "Konflikt zbrojny", "Niestabilność Polityczna", "Terroryzm", "Kryzys Gospodarczy"]},
-                        labels={'Kategoria':''})
-    fig_threats.update_layout(
-        geo=dict(showframe=False, projection_type='natural earth', bgcolor='rgba(0,0,0,0)',
-                 landcolor='rgba(255,255,255,0.03)', showland=True,
-                 subunitcolor='rgba(255,255,255,0.1)'),
-        margin={"r":0,"t":20,"l":0,"b":0},
-        paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)',
-        font_color='#c7cde3',
-        legend=dict(bgcolor='rgba(255,255,255,0.05)', bordercolor='rgba(255,255,255,0.1)', borderwidth=1)
-    )
-    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-    st.plotly_chart(fig_threats, use_container_width=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
 else:
-    st.markdown(f'''
-        <div class="glass-card-title">🎯 {L["select_title"]}</div>
-        <div class="glass-card-sub">{L["select_sub"]}</div>
-    ''', unsafe_allow_html=True)
+    # --- Inicjalizacja aktywnego widoku (domyślnie: Analiza AI) ---
+    if "active_view" not in st.session_state:
+        st.session_state.active_view = "analysis"
 
-    col1, col2 = st.columns(2)
-    with col1: selected_country = st.selectbox(f"📍 {L['country_label']}", ALL_COUNTRIES)
-    with col2:
-        if analysis_mode == L["mode_res"]: target_item = st.selectbox(f"💎 {L['res_label']}", COMMODITIES)
-        elif analysis_mode == L["mode_pol"]: target_item = st.selectbox(f"🔍 {L['pol_submode_label']}", L["pol_options"])
-        else: target_item = st.selectbox(f"🤝 {L['country2_label']}", ALL_COUNTRIES, index=1)
+    dot_a = "🔵" if st.session_state.active_view == "analysis" else "⚪"
+    dot_b = "🔵" if st.session_state.active_view == "gold" else "⚪"
+    dot_c = "🔵" if st.session_state.active_view == "threats" else "⚪"
+
+    vcol1, vcol2, vcol3 = st.columns(3)
+    with vcol1:
+        st.markdown('<div class="view-trigger-marker-a"></div>', unsafe_allow_html=True)
+        if st.button(f"{dot_a}  📊  {L['nav_analysis']}", key="view_analysis_btn", use_container_width=True):
+            st.session_state.active_view = "analysis"
+            st.rerun()
+    with vcol2:
+        st.markdown('<div class="view-trigger-marker-b"></div>', unsafe_allow_html=True)
+        if st.button(f"{dot_b}  🥇  {L['map_option_gold']}", key="view_gold_btn", use_container_width=True):
+            st.session_state.active_view = "gold"
+            st.rerun()
+    with vcol3:
+        st.markdown('<div class="view-trigger-marker-c"></div>', unsafe_allow_html=True)
+        if st.button(f"{dot_c}  🚨  {L['map_option_threats']}", key="view_threats_btn", use_container_width=True):
+            st.session_state.active_view = "threats"
+            st.rerun()
 
     st.write("")
-    generate_clicked = st.button(L["btn_gen"], use_container_width=True)
 
-    if generate_clicked:
-        if not api_key: 
-            st.error("⚠️ Podaj klucz API!")
-        else:
-            try:
-                status_placeholder.markdown(f'''
-                    <div class="status-container">
-                        <div class="status-pill">
-                            <span class="status-dot working"></span>
-                            {L["slogan"]} · <span class="status-highlight" style="color: #fbbf24;">{L["status_work"]}</span>
+    if st.session_state.active_view == "gold":
+        st.markdown(f'<div class="chart-header"><h3 style="color:#f0f2ff;">🥇 {L["map_option_gold"]}</h3></div>', unsafe_allow_html=True)
+        fig = px.choropleth(df_gold, locations="ISO_Code", color="Log_Tons", hover_name="Country",
+                            hover_data={"Log_Tons": False, "Tons": True},
+                            color_continuous_scale="Spectral_r", labels={'Log_Tons':'Skala Potęgi', 'Tons': 'Tony'})
+        fig.update_layout(
+            geo=dict(showframe=False, projection_type='natural earth', bgcolor='rgba(0,0,0,0)',
+                     landcolor='rgba(255,255,255,0.03)', showland=True,
+                     subunitcolor='rgba(255,255,255,0.1)'),
+            margin={"r":0,"t":20,"l":0,"b":0},
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            font_color='#c7cde3'
+        )
+        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+        st.plotly_chart(fig, use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    elif st.session_state.active_view == "threats":
+        st.markdown(f'<div class="chart-header"><h3 style="color:#f0f2ff;">🚨 {L["map_option_threats"]}</h3></div>', unsafe_allow_html=True)
+        fig_threats = px.choropleth(df_threats, locations="ISO_Code", color="Kategoria", hover_name="Country",
+                            color_discrete_map=color_map_threats, 
+                            category_orders={"Kategoria": ["Wojna", "Konflikt zbrojny", "Niestabilność Polityczna", "Terroryzm", "Kryzys Gospodarczy"]},
+                            labels={'Kategoria':''})
+        fig_threats.update_layout(
+            geo=dict(showframe=False, projection_type='natural earth', bgcolor='rgba(0,0,0,0)',
+                     landcolor='rgba(255,255,255,0.03)', showland=True,
+                     subunitcolor='rgba(255,255,255,0.1)'),
+            margin={"r":0,"t":20,"l":0,"b":0},
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            font_color='#c7cde3',
+            legend=dict(bgcolor='rgba(255,255,255,0.05)', bordercolor='rgba(255,255,255,0.1)', borderwidth=1)
+        )
+        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+        st.plotly_chart(fig_threats, use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    else:
+        st.markdown(f'''
+            <div class="glass-card-title">🎯 {L["select_title"]}</div>
+            <div class="glass-card-sub">{L["select_sub"]}</div>
+        ''', unsafe_allow_html=True)
+
+        col1, col2 = st.columns(2)
+        with col1: selected_country = st.selectbox(f"📍 {L['country_label']}", ALL_COUNTRIES)
+        with col2:
+            if analysis_mode == L["mode_res"]: target_item = st.selectbox(f"💎 {L['res_label']}", COMMODITIES)
+            elif analysis_mode == L["mode_pol"]: target_item = st.selectbox(f"🔍 {L['pol_submode_label']}", L["pol_options"])
+            else: target_item = st.selectbox(f"🤝 {L['country2_label']}", ALL_COUNTRIES, index=1)
+
+        st.write("")
+        generate_clicked = st.button(L["btn_gen"], use_container_width=True)
+
+        if generate_clicked:
+            if not api_key: 
+                st.error("⚠️ Podaj klucz API!")
+            else:
+                try:
+                    status_placeholder.markdown(f'''
+                        <div class="status-container">
+                            <div class="status-pill">
+                                <span class="status-dot working"></span>
+                                {L["slogan"]} · <span class="status-highlight" style="color: #fbbf24;">{L["status_work"]}</span>
+                            </div>
                         </div>
-                    </div>
-                ''', unsafe_allow_html=True)
-                client = OpenAI(api_key=api_key)
-                with st.spinner(L["loading"]):
-                    prompt = f"Analiza {target_item} w {selected_country}. {analysis_mode}. Nie używaj żadnych hasztagów (#). Nagłówki sekcji zapisuj jako pogrubiony tekst zakończony dwukropkiem (np. **Tytuł sekcji:**). Na samym końcu napisz tylko: SCORE: X (gdzie X to liczba 1-10)."
-                    resp = client.chat.completions.create(model=model_version,
-                        messages=[{"role": "system", "content": f"Ekspert geopolityki. Język: {L['code']}."},
-                                  {"role": "user", "content": prompt}])
-                    full_response = resp.choices[0].message.content
-                    processed_text = re.sub(r'^#+\s*(.*)', r'**\1:**', full_response, flags=re.MULTILINE)
-                    score_match = re.search(r"SCORE:\s*(\d+)", processed_text)
-                    clean_report = re.sub(r"SCORE:\s*\d+", "", processed_text)
-                    
-                    if score_match:
-                        score_val = int(score_match.group(1))
-                        if score_val >= 9: color_hex = "#4ade80"; status_txt = "Optymalny"; status_icon = "✅"
-                        elif score_val >= 7: color_hex = "#60a5fa"; status_txt = "Stabilny"; status_icon = "🔵"
-                        elif score_val >= 4: color_hex = "#fbbf24"; status_txt = "Umiarkowane ryzyko"; status_icon = "🟡"
-                        else: color_hex = "#f87171"; status_txt = "Wysokie ryzyko"; status_icon = "🔴"
+                    ''', unsafe_allow_html=True)
+                    client = OpenAI(api_key=api_key)
+                    with st.spinner(L["loading"]):
+                        prompt = f"Analiza {target_item} w {selected_country}. {analysis_mode}. Nie używaj żadnych hasztagów (#). Nagłówki sekcji zapisuj jako pogrubiony tekst zakończony dwukropkiem (np. **Tytuł sekcji:**). Na samym końcu napisz tylko: SCORE: X (gdzie X to liczba 1-10)."
+                        resp = client.chat.completions.create(model=model_version,
+                            messages=[{"role": "system", "content": f"Ekspert geopolityki. Język: {L['code']}."},
+                                      {"role": "user", "content": prompt}])
+                        full_response = resp.choices[0].message.content
+                        processed_text = re.sub(r'^#+\s*(.*)', r'**\1:**', full_response, flags=re.MULTILINE)
+                        score_match = re.search(r"SCORE:\s*(\d+)", processed_text)
+                        clean_report = re.sub(r"SCORE:\s*\d+", "", processed_text)
+                        
+                        if score_match:
+                            score_val = int(score_match.group(1))
+                            if score_val >= 9: color_hex = "#4ade80"; status_txt = "Optymalny"; status_icon = "✅"
+                            elif score_val >= 7: color_hex = "#60a5fa"; status_txt = "Stabilny"; status_icon = "🔵"
+                            elif score_val >= 4: color_hex = "#fbbf24"; status_txt = "Umiarkowane ryzyko"; status_icon = "🟡"
+                            else: color_hex = "#f87171"; status_txt = "Wysokie ryzyko"; status_icon = "🔴"
 
-                        st.markdown(f'<style>div[data-testid="stProgress"] > div > div > div > div {{ background: {color_hex} !important; box-shadow: 0 0 12px {color_hex}80; }}</style>', unsafe_allow_html=True)
-                        st.markdown('<div class="score-badge-wrap">', unsafe_allow_html=True)
-                        st.markdown(f'<div class="score-title">{L["score_label"]}</div>', unsafe_allow_html=True)
-                        st.progress(score_val / 10)
-                        st.markdown(f'<p class="score-status-text" style="color:{color_hex};">{status_icon} {status_txt} — {score_val}/10</p>', unsafe_allow_html=True)
-                        st.markdown('</div>', unsafe_allow_html=True)
+                            st.markdown(f'<style>div[data-testid="stProgress"] > div > div > div > div {{ background: {color_hex} !important; box-shadow: 0 0 12px {color_hex}80; }}</style>', unsafe_allow_html=True)
+                            st.markdown('<div class="score-badge-wrap">', unsafe_allow_html=True)
+                            st.markdown(f'<div class="score-title">{L["score_label"]}</div>', unsafe_allow_html=True)
+                            st.progress(score_val / 10)
+                            st.markdown(f'<p class="score-status-text" style="color:{color_hex};">{status_icon} {status_txt} — {score_val}/10</p>', unsafe_allow_html=True)
+                            st.markdown('</div>', unsafe_allow_html=True)
 
-                    st.markdown(f'<div class="report-card"><h3>📄 {selected_country} · {target_item}</h3>{clean_report.replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
-                status_placeholder.markdown(f'''
-                    <div class="status-container">
-                        <div class="status-pill">
-                            <span class="status-dot"></span>
-                            {L["slogan"]} · <span class="status-highlight">{L["status_wait"]}</span>
+                        st.markdown(f'<div class="report-card"><h3>📄 {selected_country} · {target_item}</h3>{clean_report.replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
+                    status_placeholder.markdown(f'''
+                        <div class="status-container">
+                            <div class="status-pill">
+                                <span class="status-dot"></span>
+                                {L["slogan"]} · <span class="status-highlight">{L["status_wait"]}</span>
+                            </div>
                         </div>
-                    </div>
-                ''', unsafe_allow_html=True)
-            except Exception as e: 
-                st.error(f"❌ Błąd: {e}")
+                    ''', unsafe_allow_html=True)
+                except Exception as e: 
+                    st.error(f"❌ Błąd: {e}")
 
 st.markdown("---")
 st.markdown(f"<div class='footer-text'>© 2026 <b>GeoCommodity Insights</b> · {L['footer']}</div>", unsafe_allow_html=True)
