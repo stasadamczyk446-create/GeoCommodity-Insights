@@ -392,17 +392,24 @@ st.markdown("""
     }
 
     /* --- Klikalna karta "Złoto" w liście surowców - ten sam kształt co reszta, złoto tylko na hover --- */
+    div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container {
+        height: 100% !important;
+        margin-bottom: 16px !important;
+    }
+    div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container div[data-testid="stButton"] {
+        height: 100% !important;
+    }
     div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button {
         background: rgba(255,255,255,0.045) !important;
         border: 1px solid rgba(255,255,255,0.09) !important;
         border-radius: 16px !important;
         padding: 24px 16px !important;
         width: 100% !important;
+        height: 100% !important;
         backdrop-filter: blur(20px);
         transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease !important;
         box-shadow: none !important;
         text-align: center !important;
-        min-height: 120px;
     }
     div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button:hover {
         transform: translateY(-3px);
