@@ -404,7 +404,7 @@ st.markdown("""
         border-radius: 16px !important;
         padding: 24px 16px !important;
         width: 100% !important;
-        min-height: unset !important;
+        min-height: 118px !important;
         backdrop-filter: blur(20px) !important;
         transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease !important;
         box-shadow: none !important;
