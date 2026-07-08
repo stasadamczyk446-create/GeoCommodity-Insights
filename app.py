@@ -699,7 +699,8 @@ LANG = {
         "back_label": "← Powrót", "countries_page_title": "Wszystkie państwa w bazie",
         "commodities_page_title": "Wszystkie surowce w bazie",
         "threats_page_title": "Kategorie globalnych zagrożeń",
-        "threat_country_count": "państw"
+        "threat_country_count": "państw",
+        "reset_label": "🔄 Reset"
     },
     "English 🇬🇧": {
         "code": "EN", "slogan": "AI-Powered Strategic Intelligence",
@@ -720,7 +721,8 @@ LANG = {
         "back_label": "← Back", "countries_page_title": "All countries in database",
         "commodities_page_title": "All commodities in database",
         "threats_page_title": "Global threat categories",
-        "threat_country_count": "countries"
+        "threat_country_count": "countries",
+        "reset_label": "🔄 Reset"
     }
 }
 
@@ -970,14 +972,23 @@ else:
         ''', unsafe_allow_html=True)
 
         col1, col2 = st.columns(2)
-        with col1: selected_country = st.selectbox(f"📍 {L['country_label']}", ALL_COUNTRIES)
+        with col1: selected_country = st.selectbox(f"📍 {L['country_label']}", ALL_COUNTRIES, key="sel_country")
         with col2:
-            if analysis_mode == L["mode_res"]: target_item = st.selectbox(f"💎 {L['res_label']}", COMMODITIES)
-            elif analysis_mode == L["mode_pol"]: target_item = st.selectbox(f"🔍 {L['pol_submode_label']}", L["pol_options"])
-            else: target_item = st.selectbox(f"🤝 {L['country2_label']}", ALL_COUNTRIES, index=1)
+            if analysis_mode == L["mode_res"]: target_item = st.selectbox(f"💎 {L['res_label']}", COMMODITIES, key="sel_target")
+            elif analysis_mode == L["mode_pol"]: target_item = st.selectbox(f"🔍 {L['pol_submode_label']}", L["pol_options"], key="sel_target")
+            else: target_item = st.selectbox(f"🤝 {L['country2_label']}", ALL_COUNTRIES, index=1, key="sel_target")
 
         st.write("")
-        generate_clicked = st.button(L["btn_gen"], use_container_width=True)
+        gen_col, reset_col = st.columns([4, 1])
+        with gen_col:
+            generate_clicked = st.button(L["btn_gen"], use_container_width=True)
+        with reset_col:
+            st.markdown('<div class="back-btn-marker"></div>', unsafe_allow_html=True)
+            if st.button(L["reset_label"], key="reset_btn", use_container_width=True):
+                for k in ["sel_country", "sel_target"]:
+                    if k in st.session_state:
+                        del st.session_state[k]
+                st.rerun()
 
         if generate_clicked:
             if not api_key: 
