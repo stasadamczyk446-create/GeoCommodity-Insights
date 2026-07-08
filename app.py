@@ -79,19 +79,41 @@ st.markdown("""
         color: #f0f2ff !important;
     }
 
-    /* --- Radio jako "pill tabs" --- */
+    /* --- Radio jako "pill tabs" z podświetleniem aktywnej opcji --- */
     div[role="radiogroup"] {
         background: rgba(255,255,255,0.04);
         padding: 6px;
-        border-radius: 12px;
+        border-radius: 14px;
         border: 1px solid rgba(255,255,255,0.08);
-        gap: 4px !important;
+        gap: 6px !important;
     }
     div[role="radiogroup"] label {
-        background: transparent;
-        border-radius: 8px;
-        padding: 6px 10px !important;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid transparent;
+        border-radius: 10px;
+        padding: 10px 12px !important;
         transition: all 0.2s ease;
+        cursor: pointer;
+        width: 100%;
+    }
+    div[role="radiogroup"] label:hover {
+        background: rgba(255,255,255,0.06);
+        border-color: rgba(255,255,255,0.12);
+    }
+    /* Aktywna (zaznaczona) opcja - wyraźne podświetlenie indygo */
+    div[role="radiogroup"] label:has(input:checked) {
+        background: linear-gradient(90deg, rgba(99,102,241,0.22), rgba(168,85,247,0.16)) !important;
+        border: 1px solid rgba(139,92,246,0.5) !important;
+        box-shadow: 0 2px 10px rgba(139,92,246,0.15);
+    }
+    div[role="radiogroup"] label:has(input:checked) p {
+        color: #f0f2ff !important;
+        font-weight: 700 !important;
+    }
+    div[role="radiogroup"] label p {
+        color: #a7afd1;
+        font-weight: 500;
+        transition: color 0.2s ease;
     }
 
     /* --- Hero header --- */
@@ -684,7 +706,7 @@ LANG = {
         "code": "PL", "slogan": "Strategiczna Analityka wspierana przez AI",
         "api_label": "Klucz API OpenAI", "nav_analysis": "Analiza Tekstowa",
         "nav_maps": "Moduł Wizualny", "mode_label": "Wybierz tryb:",
-        "mode_res": "Surowce Strategiczne", "mode_pol": "Polityka", "mode_rel": "Analiza Relacji",
+        "mode_res": "💎 Surowce Strategiczne", "mode_pol": "🏛️ Polityka", "mode_rel": "🤝 Analiza Relacji",
         "map_option_off": "Wyłączony", "map_option_gold": "Mapa Rezerw Złota", "map_option_threats": "Globalny Monitor Zagrożeń",
         "country_label": "Wybierz Państwo:", "country2_label": "Wybierz drugie Państwo:",
         "res_label": "Wybierz Surowiec:", "pol_submode_label": "Obszar polityki:",
@@ -706,7 +728,7 @@ LANG = {
         "code": "EN", "slogan": "AI-Powered Strategic Intelligence",
         "api_label": "OpenAI API Key", "nav_analysis": "Textual Analysis",
         "nav_maps": "Visual Module", "mode_label": "Select mode:",
-        "mode_res": "Strategic Commodities", "mode_pol": "Politics", "mode_rel": "Relationship Analysis",
+        "mode_res": "💎 Strategic Commodities", "mode_pol": "🏛️ Politics", "mode_rel": "🤝 Relationship Analysis",
         "map_option_off": "Disabled", "map_option_gold": "Gold Reserves Map", "map_option_threats": "Global Threat Monitor",
         "country_label": "Select Country:", "country2_label": "Select second Country:",
         "res_label": "Select Commodity:", "pol_submode_label": "Politics area:",
@@ -979,16 +1001,29 @@ else:
             else: target_item = st.selectbox(f"🤝 {L['country2_label']}", ALL_COUNTRIES, index=1, key="sel_target")
 
         st.write("")
-        gen_col, reset_col = st.columns([4, 1])
+
+        if "last_report" not in st.session_state:
+            st.session_state.last_report = None
+
+        # Przycisk Reset pojawia się dopiero, gdy istnieje wygenerowany raport
+        if st.session_state.last_report is not None:
+            gen_col, reset_col = st.columns([4, 1])
+        else:
+            gen_col = st.container()
+            reset_col = None
+
         with gen_col:
             generate_clicked = st.button(L["btn_gen"], use_container_width=True)
-        with reset_col:
-            st.markdown('<div class="back-btn-marker"></div>', unsafe_allow_html=True)
-            if st.button(L["reset_label"], key="reset_btn", use_container_width=True):
-                for k in ["sel_country", "sel_target"]:
-                    if k in st.session_state:
-                        del st.session_state[k]
-                st.rerun()
+
+        if reset_col is not None:
+            with reset_col:
+                st.markdown('<div class="back-btn-marker"></div>', unsafe_allow_html=True)
+                if st.button(L["reset_label"], key="reset_btn", use_container_width=True):
+                    for k in ["sel_country", "sel_target"]:
+                        if k in st.session_state:
+                            del st.session_state[k]
+                    st.session_state.last_report = None
+                    st.rerun()
 
         if generate_clicked:
             if not api_key: 
@@ -1005,7 +1040,8 @@ else:
                     ''', unsafe_allow_html=True)
                     client = OpenAI(api_key=api_key)
                     with st.spinner(L["loading"]):
-                        prompt = f"Analiza {target_item} w {selected_country}. {analysis_mode}. Nie używaj żadnych hasztagów (#). Nagłówki sekcji zapisuj jako pogrubiony tekst zakończony dwukropkiem (np. **Tytuł sekcji:**). Na samym końcu napisz tylko: SCORE: X (gdzie X to liczba 1-10)."
+                        clean_mode_label = re.sub(r'^[^\w]+', '', analysis_mode).strip()
+                        prompt = f"Analiza {target_item} w {selected_country}. {clean_mode_label}. Nie używaj żadnych hasztagów (#). Nagłówki sekcji zapisuj jako pogrubiony tekst zakończony dwukropkiem (np. **Tytuł sekcji:**). Na samym końcu napisz tylko: SCORE: X (gdzie X to liczba 1-10)."
                         resp = client.chat.completions.create(model=model_version,
                             messages=[{"role": "system", "content": f"Ekspert geopolityki. Język: {L['code']}."},
                                       {"role": "user", "content": prompt}])
@@ -1013,22 +1049,13 @@ else:
                         processed_text = re.sub(r'^#+\s*(.*)', r'**\1:**', full_response, flags=re.MULTILINE)
                         score_match = re.search(r"SCORE:\s*(\d+)", processed_text)
                         clean_report = re.sub(r"SCORE:\s*\d+", "", processed_text)
-                        
-                        if score_match:
-                            score_val = int(score_match.group(1))
-                            if score_val >= 9: color_hex = "#4ade80"; status_txt = "Optymalny"; status_icon = "✅"
-                            elif score_val >= 7: color_hex = "#60a5fa"; status_txt = "Stabilny"; status_icon = "🔵"
-                            elif score_val >= 4: color_hex = "#fbbf24"; status_txt = "Umiarkowane ryzyko"; status_icon = "🟡"
-                            else: color_hex = "#f87171"; status_txt = "Wysokie ryzyko"; status_icon = "🔴"
 
-                            st.markdown(f'<style>div[data-testid="stProgress"] > div > div > div > div {{ background: {color_hex} !important; box-shadow: 0 0 12px {color_hex}80; }}</style>', unsafe_allow_html=True)
-                            st.markdown('<div class="score-badge-wrap">', unsafe_allow_html=True)
-                            st.markdown(f'<div class="score-title">{L["score_label"]}</div>', unsafe_allow_html=True)
-                            st.progress(score_val / 10)
-                            st.markdown(f'<p class="score-status-text" style="color:{color_hex};">{status_icon} {status_txt} — {score_val}/10</p>', unsafe_allow_html=True)
-                            st.markdown('</div>', unsafe_allow_html=True)
-
-                        st.markdown(f'<div class="report-card"><h3>📄 {selected_country} · {target_item}</h3>{clean_report.replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
+                        st.session_state.last_report = {
+                            "country": selected_country,
+                            "target": target_item,
+                            "text": clean_report,
+                            "score": int(score_match.group(1)) if score_match else None,
+                        }
                     status_placeholder.markdown(f'''
                         <div class="status-container">
                             <div class="status-pill">
@@ -1037,8 +1064,28 @@ else:
                             </div>
                         </div>
                     ''', unsafe_allow_html=True)
+                    st.rerun()
                 except Exception as e: 
                     st.error(f"❌ Błąd: {e}")
+
+        # --- Renderowanie zapamiętanego raportu (widoczny dopóki nie klikniesz Reset) ---
+        if st.session_state.last_report is not None:
+            report = st.session_state.last_report
+            if report["score"] is not None:
+                score_val = report["score"]
+                if score_val >= 9: color_hex = "#4ade80"; status_txt = "Optymalny"; status_icon = "✅"
+                elif score_val >= 7: color_hex = "#60a5fa"; status_txt = "Stabilny"; status_icon = "🔵"
+                elif score_val >= 4: color_hex = "#fbbf24"; status_txt = "Umiarkowane ryzyko"; status_icon = "🟡"
+                else: color_hex = "#f87171"; status_txt = "Wysokie ryzyko"; status_icon = "🔴"
+
+                st.markdown(f'<style>div[data-testid="stProgress"] > div > div > div > div {{ background: {color_hex} !important; box-shadow: 0 0 12px {color_hex}80; }}</style>', unsafe_allow_html=True)
+                st.markdown('<div class="score-badge-wrap">', unsafe_allow_html=True)
+                st.markdown(f'<div class="score-title">{L["score_label"]}</div>', unsafe_allow_html=True)
+                st.progress(score_val / 10)
+                st.markdown(f'<p class="score-status-text" style="color:{color_hex};">{status_icon} {status_txt} — {score_val}/10</p>', unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
+
+            st.markdown(f'<div class="report-card"><h3>📄 {report["country"]} · {report["target"]}</h3>{report["text"].replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
 
 st.markdown("---")
 st.markdown(f"<div class='footer-text'>© 2026 <b>GeoCommodity Insights</b> · {L['footer']}</div>", unsafe_allow_html=True)
