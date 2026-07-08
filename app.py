@@ -392,13 +392,17 @@ st.markdown("""
     }
 
     /* --- Klikalna karta "Złoto" w liście surowców - ten sam kształt co reszta, złoto tylko na hover --- */
+    /* Podwójne zabezpieczenie: selektor po kluczu widgetu (st-key-) ORAZ technika markera */
+    div.st-key-commodity_gold_link_btn,
     div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container {
         height: 100% !important;
         margin-bottom: 16px !important;
     }
+    div.st-key-commodity_gold_link_btn div[data-testid="stButton"],
     div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container div[data-testid="stButton"] {
         height: 100% !important;
     }
+    div.st-key-commodity_gold_link_btn button,
     div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button {
         background: rgba(255,255,255,0.045) !important;
         border: 1px solid rgba(255,255,255,0.09) !important;
@@ -406,25 +410,29 @@ st.markdown("""
         padding: 24px 16px !important;
         width: 100% !important;
         height: 100% !important;
-        backdrop-filter: blur(20px);
+        backdrop-filter: blur(20px) !important;
         transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease !important;
         box-shadow: none !important;
         text-align: center !important;
     }
+    div.st-key-commodity_gold_link_btn button:hover,
     div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button:hover {
         transform: translateY(-3px);
         border-color: rgba(234,179,8,0.55) !important;
         background: rgba(234,179,8,0.18) !important;
     }
+    div.st-key-commodity_gold_link_btn button p,
     div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button p {
         color: #f0f2ff !important;
         margin: 0 !important;
         line-height: 1.4 !important;
     }
+    div.st-key-commodity_gold_link_btn button p:first-child,
     div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button p:first-child {
         font-size: 2.0em !important;
         margin-bottom: 8px !important;
     }
+    div.st-key-commodity_gold_link_btn button strong,
     div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button strong {
         font-family: 'Poppins', sans-serif !important;
         font-weight: 600 !important;
