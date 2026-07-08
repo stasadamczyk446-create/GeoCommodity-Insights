@@ -391,10 +391,10 @@ st.markdown("""
         background: rgba(239,68,68,0.2) !important;
     }
 
-    /* --- Klikalna karta "Złoto" w liście surowców - prowadzi do mapy rezerw --- */
+    /* --- Klikalna karta "Złoto" w liście surowców - ten sam kształt co reszta, złoto tylko na hover --- */
     div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button {
-        background: rgba(234,179,8,0.16) !important;
-        border: 1px solid rgba(234,179,8,0.32) !important;
+        background: rgba(255,255,255,0.045) !important;
+        border: 1px solid rgba(255,255,255,0.09) !important;
         border-radius: 16px !important;
         padding: 24px 16px !important;
         width: 100% !important;
@@ -406,18 +406,22 @@ st.markdown("""
     }
     div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button:hover {
         transform: translateY(-3px);
-        border-color: rgba(234,179,8,0.6) !important;
-        background: rgba(234,179,8,0.26) !important;
+        border-color: rgba(234,179,8,0.55) !important;
+        background: rgba(234,179,8,0.18) !important;
     }
     div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button p {
         color: #f0f2ff !important;
         margin: 0 !important;
         line-height: 1.4 !important;
     }
+    div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button p:first-child {
+        font-size: 2.0em !important;
+        margin-bottom: 8px !important;
+    }
     div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button strong {
         font-family: 'Poppins', sans-serif !important;
-        font-weight: 700 !important;
-        font-size: 1.0em !important;
+        font-weight: 600 !important;
+        font-size: 0.95em !important;
     }
 
     /* --- Przycisk "Powrót" - neutralny styl, bez fioletowego gradientu/blysku --- */
@@ -615,6 +619,25 @@ gold_data = {
 }
 df_gold = pd.DataFrame(gold_data)
 df_gold['Log_Tons'] = np.log10(df_gold['Tons'])
+
+def render_gold_map(L):
+    """Renderuje mapę rezerw złota (współdzielona między zakładką i osobną podstroną)."""
+    st.markdown(f'<div class="chart-header"><h3 style="color:#f0f2ff;">🥇 {L["map_option_gold"]}</h3></div>', unsafe_allow_html=True)
+    fig = px.choropleth(df_gold, locations="ISO_Code", color="Log_Tons", hover_name="Country",
+                        hover_data={"Log_Tons": False, "Tons": True},
+                        color_continuous_scale="Spectral_r", labels={'Log_Tons':'Skala Potęgi', 'Tons': 'Tony'})
+    fig.update_layout(
+        geo=dict(showframe=False, projection_type='natural earth', bgcolor='rgba(0,0,0,0)',
+                 landcolor='rgba(255,255,255,0.03)', showland=True,
+                 subunitcolor='rgba(255,255,255,0.1)'),
+        margin={"r":0,"t":20,"l":0,"b":0},
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        font_color='#c7cde3'
+    )
+    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+    st.plotly_chart(fig, use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # --- 3. Baza Danych Zagrożeń Globalnych ---
 threat_data = {
@@ -872,6 +895,8 @@ if "show_commodities_page" not in st.session_state:
     st.session_state.show_commodities_page = False
 if "show_threats_page" not in st.session_state:
     st.session_state.show_threats_page = False
+if "show_gold_detail_page" not in st.session_state:
+    st.session_state.show_gold_detail_page = False
 
 # --- 6b. Metric cards ---
 mcol1, mcol2, mcol3, mcol4 = st.columns(4)
@@ -939,7 +964,7 @@ elif st.session_state.show_commodities_page:
                 st.markdown('<div class="commodity-gold-trigger-marker"></div>', unsafe_allow_html=True)
                 if st.button(f"{icon}\n\n**{commodity}**", key="commodity_gold_link_btn", use_container_width=True):
                     st.session_state.show_commodities_page = False
-                    st.session_state.active_view = "gold"
+                    st.session_state.show_gold_detail_page = True
                     st.rerun()
             else:
                 st.markdown(f'''<div class="commodity-card">
@@ -977,6 +1002,15 @@ elif st.session_state.show_threats_page:
                 <div class="threat-count">{count} {L["threat_country_count"]}</div>
             </div>''', unsafe_allow_html=True)
 
+elif st.session_state.show_gold_detail_page:
+    st.markdown('<div class="back-btn-marker"></div>', unsafe_allow_html=True)
+    if st.button(L["back_label"], key="back_btn_gold_detail"):
+        st.session_state.show_gold_detail_page = False
+        st.session_state.show_commodities_page = True
+        st.rerun()
+
+    render_gold_map(L)
+
 else:
     # --- Inicjalizacja aktywnego widoku (domyślnie: Analiza AI) ---
     if "active_view" not in st.session_state:
@@ -1006,22 +1040,7 @@ else:
     st.write("")
 
     if st.session_state.active_view == "gold":
-        st.markdown(f'<div class="chart-header"><h3 style="color:#f0f2ff;">🥇 {L["map_option_gold"]}</h3></div>', unsafe_allow_html=True)
-        fig = px.choropleth(df_gold, locations="ISO_Code", color="Log_Tons", hover_name="Country",
-                            hover_data={"Log_Tons": False, "Tons": True},
-                            color_continuous_scale="Spectral_r", labels={'Log_Tons':'Skala Potęgi', 'Tons': 'Tony'})
-        fig.update_layout(
-            geo=dict(showframe=False, projection_type='natural earth', bgcolor='rgba(0,0,0,0)',
-                     landcolor='rgba(255,255,255,0.03)', showland=True,
-                     subunitcolor='rgba(255,255,255,0.1)'),
-            margin={"r":0,"t":20,"l":0,"b":0},
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            font_color='#c7cde3'
-        )
-        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-        st.plotly_chart(fig, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        render_gold_map(L)
 
     elif st.session_state.active_view == "threats":
         st.markdown(f'<div class="chart-header"><h3 style="color:#f0f2ff;">🚨 {L["map_option_threats"]}</h3></div>', unsafe_allow_html=True)
