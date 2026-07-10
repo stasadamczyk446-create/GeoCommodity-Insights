@@ -402,9 +402,8 @@ st.markdown("""
         background: rgba(255,255,255,0.045) !important;
         border: 1px solid rgba(255,255,255,0.09) !important;
         border-radius: 16px !important;
-        padding: 32px 16px !important;
+        padding: 30px 16px !important;
         width: 100% !important;
-        min-height: 190px !important;
         backdrop-filter: blur(20px) !important;
         transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease !important;
         box-shadow: none !important;
@@ -676,6 +675,15 @@ color_map_threats = {
     'Niestabilność Polityczna': '#f97316',
     'Terroryzm': '#ea580c',
     'Kryzys Gospodarczy': '#a855f7'
+}
+
+# --- Konwersja kodów ISO alfa-3 (używanych na mapie) na alfa-2 (wymagane przez flagcdn.com) ---
+ISO_ALPHA3_TO_ALPHA2 = {
+    'UKR': 'ua', 'RUS': 'ru', 'ISR': 'il', 'PSE': 'ps', 'SYR': 'sy', 'YEM': 'ye',
+    'TWN': 'tw', 'PRK': 'kp', 'IRN': 'ir', 'AFG': 'af', 'SOM': 'so', 'MLI': 'ml',
+    'BFA': 'bf', 'NER': 'ne', 'COD': 'cd', 'VEN': 've', 'ARG': 'ar', 'TUR': 'tr',
+    'EGY': 'eg', 'PAK': 'pk', 'LBN': 'lb', 'MEX': 'mx', 'MMR': 'mm', 'IRQ': 'iq',
+    'GEO': 'ge', 'NGA': 'ng', 'CUB': 'cu'
 }
 
 ALL_COUNTRIES = sorted([
@@ -1076,7 +1084,8 @@ elif st.session_state.threat_category_detail is not None:
 
     tc_cols = st.columns(4)
     for idx, row in enumerate(countries_in_category.itertuples()):
-        flag_url = f"https://flagcdn.com/w80/{row.ISO_Code.lower()}.png"
+        flag_code = ISO_ALPHA3_TO_ALPHA2.get(row.ISO_Code, row.ISO_Code.lower())
+        flag_url = f"https://flagcdn.com/w80/{flag_code}.png"
         with tc_cols[idx % 4]:
             st.markdown(f'''<div class="country-card">
                 <img class="country-flag-icon" src="{flag_url}" alt="{row.Country}" loading="lazy">
