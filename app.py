@@ -402,9 +402,9 @@ st.markdown("""
         background: rgba(255,255,255,0.045) !important;
         border: 1px solid rgba(255,255,255,0.09) !important;
         border-radius: 16px !important;
-        padding: 24px 16px !important;
+        padding: 32px 16px !important;
         width: 100% !important;
-        min-height: 118px !important;
+        min-height: 190px !important;
         backdrop-filter: blur(20px) !important;
         transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease !important;
         box-shadow: none !important;
@@ -769,7 +769,8 @@ COUNTRY_ISO_MAP = {
     "Vanuatu": "VU", "Watykan": "VA", "Wenezuela": "VE", "Węgry": "HU",
     "Wielka Brytania": "GB", "Wietnam": "VN", "Włochy": "IT",
     "Wybrzeże Kości Słoniowej": "CI", "Wyspy Marshalla": "MH", "Wyspy Salomona": "SB",
-    "Wyspy Świętego Tomasza i Książęca": "ST", "Zambia": "ZM", "Zimbabwe": "ZW", "ZEA": "AE"
+    "Wyspy Świętego Tomasza i Książęca": "ST", "Zambia": "ZM", "Zimbabwe": "ZW", "ZEA": "AE",
+    "DR Konga": "CD", "Mjanma": "MM"
 }
 
 def country_flag_url(country_name, width=80):
@@ -907,6 +908,8 @@ if "show_threats_page" not in st.session_state:
     st.session_state.show_threats_page = False
 if "show_gold_detail_page" not in st.session_state:
     st.session_state.show_gold_detail_page = False
+if "threat_category_detail" not in st.session_state:
+    st.session_state.threat_category_detail = None
 
 # --- 6b. Metric cards ---
 mcol1, mcol2, mcol3, mcol4 = st.columns(4)
@@ -999,17 +1002,85 @@ elif st.session_state.show_threats_page:
         "Terroryzm": "💣",
         "Kryzys Gospodarczy": "📉"
     }
+    threat_category_keys = {
+        "Wojna": "threat_cat_btn_wojna",
+        "Konflikt zbrojny": "threat_cat_btn_konflikt",
+        "Niestabilność Polityczna": "threat_cat_btn_niestabilnosc",
+        "Terroryzm": "threat_cat_btn_terroryzm",
+        "Kryzys Gospodarczy": "threat_cat_btn_kryzys",
+    }
+
+    # --- Dynamiczny CSS - każda kategoria ma kolor kafelka dokładnie taki jak na mapie ---
+    dynamic_threat_css = "<style>"
+    for category, key in threat_category_keys.items():
+        color_hex = color_map_threats.get(category, "#e74c3c")
+        dynamic_threat_css += f"""
+        div.st-key-{key} button {{
+            background: {color_hex}26 !important;
+            border: 1px solid {color_hex}66 !important;
+            border-radius: 16px !important;
+            padding: 28px 20px !important;
+            width: 100% !important;
+            min-height: 165px !important;
+            backdrop-filter: blur(20px) !important;
+            transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease !important;
+            box-shadow: none !important;
+            text-align: center !important;
+        }}
+        div.st-key-{key} button:hover {{
+            transform: translateY(-3px);
+            border-color: {color_hex}A0 !important;
+            background: {color_hex}40 !important;
+        }}
+        div.st-key-{key} button p {{
+            color: #f0f2ff !important;
+            margin: 0 !important;
+            line-height: 1.4 !important;
+        }}
+        div.st-key-{key} button p:first-child {{
+            font-size: 2.2em !important;
+            margin-bottom: 10px !important;
+        }}
+        div.st-key-{key} button strong {{
+            font-family: 'Poppins', sans-serif !important;
+            font-weight: 700 !important;
+            font-size: 1.1em !important;
+        }}
+        """
+    dynamic_threat_css += "</style>"
+    st.markdown(dynamic_threat_css, unsafe_allow_html=True)
 
     threat_cols = st.columns(len(threat_category_order))
     for idx, category in enumerate(threat_category_order):
-        color_hex = color_map_threats.get(category, "#e74c3c")
         count = int((df_threats["Kategoria"] == category).sum())
         icon = threat_icons.get(category, "⚠️")
+        key = threat_category_keys[category]
         with threat_cols[idx]:
-            st.markdown(f'''<div class="threat-card" style="background: {color_hex}26; border: 1px solid {color_hex}66;">
-                <div class="threat-icon">{icon}</div>
-                <div class="threat-name">{category}</div>
-                <div class="threat-count">{count} {L["threat_country_count"]}</div>
+            if st.button(f"{icon}\n\n**{category}**\n\n{count} {L['threat_country_count']}", key=key, use_container_width=True):
+                st.session_state.threat_category_detail = category
+                st.session_state.show_threats_page = False
+                st.rerun()
+
+elif st.session_state.threat_category_detail is not None:
+    st.markdown('<div class="back-btn-marker"></div>', unsafe_allow_html=True)
+    if st.button(L["back_label"], key="back_btn_threat_category"):
+        st.session_state.threat_category_detail = None
+        st.session_state.show_threats_page = True
+        st.rerun()
+
+    selected_category = st.session_state.threat_category_detail
+    countries_in_category = df_threats[df_threats["Kategoria"] == selected_category][["Country", "ISO_Code"]]
+
+    st.markdown(f'<h3 style="color:#f0f2ff; text-align:center; margin-top:10px;">⚠️ {selected_category} ({len(countries_in_category)})</h3>', unsafe_allow_html=True)
+    st.write("")
+
+    tc_cols = st.columns(4)
+    for idx, row in enumerate(countries_in_category.itertuples()):
+        flag_url = f"https://flagcdn.com/w80/{row.ISO_Code.lower()}.png"
+        with tc_cols[idx % 4]:
+            st.markdown(f'''<div class="country-card">
+                <img class="country-flag-icon" src="{flag_url}" alt="{row.Country}" loading="lazy">
+                <div class="country-name">{row.Country}</div>
             </div>''', unsafe_allow_html=True)
 
 elif st.session_state.show_gold_detail_page:
