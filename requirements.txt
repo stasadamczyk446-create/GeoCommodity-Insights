@@ -1,3 +1,6 @@
 streamlit
 openai
 plotly
+pandas
+numpy
+pillow
