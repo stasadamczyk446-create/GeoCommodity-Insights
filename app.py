@@ -919,28 +919,34 @@ if "show_gold_detail_page" not in st.session_state:
 if "threat_category_detail" not in st.session_state:
     st.session_state.threat_category_detail = None
 
+def reset_all_subpages():
+    """Czyści WSZYSTKIE stany podstron przed każdą nawigacją,
+    żeby nie został 'zapamiętany' stan z poprzednio odwiedzonej podstrony."""
+    st.session_state.show_countries_page = False
+    st.session_state.show_commodities_page = False
+    st.session_state.show_threats_page = False
+    st.session_state.show_gold_detail_page = False
+    st.session_state.threat_category_detail = None
+
 # --- 6b. Metric cards ---
 mcol1, mcol2, mcol3, mcol4 = st.columns(4)
 with mcol1:
     st.markdown('<div class="metric-trigger-marker"></div>', unsafe_allow_html=True)
     if st.button(f"🌐\n\n**{len(ALL_COUNTRIES)}**\n\n{L['m1_label']}", key="countries_trigger_btn", use_container_width=True):
+        reset_all_subpages()
         st.session_state.show_countries_page = True
-        st.session_state.show_commodities_page = False
-        st.session_state.show_threats_page = False
         st.rerun()
 with mcol2:
     st.markdown('<div class="metric-trigger-marker-2"></div>', unsafe_allow_html=True)
     if st.button(f"💎\n\n**{len(COMMODITIES)}**\n\n{L['m2_label']}", key="commodities_trigger_btn", use_container_width=True):
+        reset_all_subpages()
         st.session_state.show_commodities_page = True
-        st.session_state.show_countries_page = False
-        st.session_state.show_threats_page = False
         st.rerun()
 with mcol3:
     st.markdown('<div class="metric-trigger-marker-3"></div>', unsafe_allow_html=True)
     if st.button(f"⚠️\n\n**{len(df_threats)}**\n\n{L['m3_label']}", key="threats_trigger_btn", use_container_width=True):
+        reset_all_subpages()
         st.session_state.show_threats_page = True
-        st.session_state.show_countries_page = False
-        st.session_state.show_commodities_page = False
         st.rerun()
 with mcol4:
     st.markdown(f'''<div class="metric-card"><div class="metric-icon">🤖</div>
@@ -953,7 +959,7 @@ st.markdown("---")
 if st.session_state.show_countries_page:
     st.markdown('<div class="back-btn-marker"></div>', unsafe_allow_html=True)
     if st.button(L["back_label"], key="back_btn"):
-        st.session_state.show_countries_page = False
+        reset_all_subpages()
         st.rerun()
 
     st.markdown(f'<h3 style="color:#f0f2ff; text-align:center; margin-top:10px;">🌍 {L["countries_page_title"]} ({len(ALL_COUNTRIES)})</h3>', unsafe_allow_html=True)
@@ -971,7 +977,7 @@ if st.session_state.show_countries_page:
 elif st.session_state.show_commodities_page:
     st.markdown('<div class="back-btn-marker"></div>', unsafe_allow_html=True)
     if st.button(L["back_label"], key="back_btn_commodities"):
-        st.session_state.show_commodities_page = False
+        reset_all_subpages()
         st.rerun()
 
     st.markdown(f'<h3 style="color:#f0f2ff; text-align:center; margin-top:10px;">💎 {L["commodities_page_title"]} ({len(COMMODITIES)})</h3>', unsafe_allow_html=True)
@@ -982,9 +988,8 @@ elif st.session_state.show_commodities_page:
         icon = COMMODITY_ICONS.get(commodity, "💎")
         with commodity_cols[idx % 4]:
             if commodity == "Złoto":
-                st.markdown('<div class="commodity-gold-trigger-marker"></div>', unsafe_allow_html=True)
                 if st.button(f"{icon}\n\n**{commodity}**", key="commodity_gold_link_btn", use_container_width=True):
-                    st.session_state.show_commodities_page = False
+                    reset_all_subpages()
                     st.session_state.show_gold_detail_page = True
                     st.rerun()
             else:
@@ -996,7 +1001,7 @@ elif st.session_state.show_commodities_page:
 elif st.session_state.show_threats_page:
     st.markdown('<div class="back-btn-marker"></div>', unsafe_allow_html=True)
     if st.button(L["back_label"], key="back_btn_threats"):
-        st.session_state.show_threats_page = False
+        reset_all_subpages()
         st.rerun()
 
     st.markdown(f'<h3 style="color:#f0f2ff; text-align:center; margin-top:10px;">⚠️ {L["threats_page_title"]}</h3>', unsafe_allow_html=True)
