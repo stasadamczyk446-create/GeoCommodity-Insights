@@ -392,42 +392,51 @@ st.markdown("""
     }
 
     /* --- Klikalna karta "Złoto" w liście surowców - ten sam kształt co reszta, złoto tylko na hover --- */
-    /* Podwójne zabezpieczenie: selektor po kluczu widgetu (st-key-) ORAZ technika markera */
-    div.st-key-commodity_gold_link_btn,
-    div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container {
+    div.st-key-commodity_gold_link_btn {
         margin-bottom: 16px !important;
     }
-    div.st-key-commodity_gold_link_btn button,
-    div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button {
+    div.st-key-commodity_gold_link_btn button {
         background: rgba(255,255,255,0.045) !important;
         border: 1px solid rgba(255,255,255,0.09) !important;
         border-radius: 16px !important;
-        padding: 30px 16px !important;
+        padding: 24px 16px !important;
         width: 100% !important;
+        box-sizing: border-box !important;
+        min-height: 132px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
         backdrop-filter: blur(20px) !important;
         transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease !important;
         box-shadow: none !important;
         text-align: center !important;
     }
-    div.st-key-commodity_gold_link_btn button:hover,
-    div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button:hover {
+    /* Ikona NAD nazwą (układ kolumnowy także wewnątrz etykiety przycisku) */
+    div.st-key-commodity_gold_link_btn button > div,
+    div.st-key-commodity_gold_link_btn button div[data-testid="stMarkdownContainer"] {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+    }
+    div.st-key-commodity_gold_link_btn button:hover {
         transform: translateY(-3px);
         border-color: rgba(234,179,8,0.55) !important;
         background: rgba(234,179,8,0.18) !important;
     }
-    div.st-key-commodity_gold_link_btn button p,
-    div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button p {
+    div.st-key-commodity_gold_link_btn button p {
         color: #f0f2ff !important;
         margin: 0 !important;
         line-height: 1.4 !important;
+        text-align: center !important;
     }
-    div.st-key-commodity_gold_link_btn button p:first-child,
-    div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button p:first-child {
+    div.st-key-commodity_gold_link_btn button p:first-child {
         font-size: 2.0em !important;
         margin-bottom: 8px !important;
     }
-    div.st-key-commodity_gold_link_btn button strong,
-    div.element-container:has(div.commodity-gold-trigger-marker) + div.element-container button strong {
+    div.st-key-commodity_gold_link_btn button strong {
         font-family: 'Poppins', sans-serif !important;
         font-weight: 600 !important;
         font-size: 0.95em !important;
